@@ -28,7 +28,7 @@ typedef struct rhs_node {
         non_terminals non_t;     // Non-terminal value
     } value;
     struct rhs_node* next;  // Pointer to the next node in the list
-    tree_node* ptr;
+    treeNode* ptr;
 } RHSNode;
 
 // A linked list containing a production rule
