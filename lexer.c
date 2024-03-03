@@ -3,7 +3,6 @@
 // initialising lexer
 FILE *initialise(char *inputFile, long long int buff_size)
 {
-    BUFFER_SIZE = buff_size;
     memset(twinBuffer.firstBuf, 0, sizeof(twinBuffer.firstBuf));
     memset(twinBuffer.secondBuf, 0, sizeof(twinBuffer.secondBuf));
     FILE *fileptr = fopen(inputFile, "r");
@@ -23,14 +22,14 @@ FILE *initialise(char *inputFile, long long int buff_size)
     isEnd = false;
     beginPtr = twinBuffer.firstBuf;
     forwardPtr = twinBuffer.firstBuf;
-    SymbolTable = initializeSymbolTable();
+    initializeSymbolTable();
     return fp;
 }
 
 // Function to initialize SymbolTable
-SymbolTable *initializeSymbolTable()
+void initializeSymbolTable()
 {
-    SymbolTable *table = (SymbolTable *)malloc(sizeof(SymbolTable));
+    table = (Symboltable *)malloc(sizeof(Symboltable));
     if (table == NULL)
     {
         fprintf(stderr, "Memory allocation failed for SymbolTable.\n");
@@ -45,9 +44,9 @@ SymbolTable *initializeSymbolTable()
     // Insert keywords into the symbol table
     for (int i = 0; i < KC; i++)
     {
-        insert(keywords[i].key, keywords[i].token);
+        insert(keywords[i]->key, keywords[i]->token);
     }
-    return table;
+    return;
 }
 
 // Function to calculate hash
@@ -165,8 +164,8 @@ void initializeKeywords()
     };
     for (int i = 0; i < KC; i++)
     {
-        keywords[i].key = table[i][0];
-        keywords[i].token = table[i][1];
+        keywords[i]->key = table[i][0];
+        keywords[i]->token = table[i][1];
     }
 }
 
@@ -197,29 +196,28 @@ char *getLexeme()
     char *lexeme;
     bool begin = (beginPtr < (twinBuffer.firstBuf + BUFFER_SIZE) && beginPtr >= twinBuffer.firstBuf);
     bool forward = (forwardPtr < (twinBuffer.firstBuf + BUFFER_SIZE) && forwardPtr >= twinBuffer.firstBuf);
-    ;
-
+    int sizeInFirst, sizeInSecond, size;
     if ((begin && forward) || (!begin && !forward))
     {
-        int size = (forwardPtr - beginPtr);
+        size = (forwardPtr - beginPtr);
         lexeme = (char *)malloc(size * sizeof(char));
         strncpy(lexeme, beginPtr, size);
     }
     else if (begin && !forward)
     {
-        int sizeInFirst = ((twinBuffer.firstBuf + BUFFER_SIZE - 1) - beginPtr) + 1;
-        int sizeInSecond = (forwardPtr - twinBuffer.secondBuf);
-        int size = sizeInFirst + sizeInSecond;
+        sizeInFirst = ((twinBuffer.firstBuf + BUFFER_SIZE - 1) - beginPtr) + 1;
+        sizeInSecond = (forwardPtr - twinBuffer.secondBuf);
+        size = sizeInFirst + sizeInSecond;
         lexeme = (char *)malloc(sizeof(char) * size);
         strncpy(lexeme, beginPtr, sizeInFirst);
         strncpy(lexeme + sizeInFirst, twinBuffer.secondBuf, sizeInSecond);
     }
     else
     {
-        int sizeInFirst = (forwardPtr - twinBuffer.firstBuf);
-        int sizeInSecond = ((twinBuffer.secondBuf + BUFFER_SIZE - 1) - beginPtr) + 1;
-        int size = sizeInFirst + sizeInSecond;
-        lexeme = (char *)malloc(sizeof(char) * size);
+        sizeInFirst = (forwardPtr - twinBuffer.firstBuf);
+        sizeInSecond = ((twinBuffer.secondBuf + BUFFER_SIZE - 1) - beginPtr) + 1;
+        size = sizeInFirst+sizeInSecond;
+        lexeme = (char *) malloc(size * sizeof(char));
         strncpy(lexeme, beginPtr, sizeInSecond);
         strncpy(lexeme + sizeInSecond, twinBuffer.firstBuf, sizeInFirst);
     }
@@ -322,7 +320,7 @@ char getNextCharacter(FILE *fp)
     char ch = *forwardPtr;
     if (ch == EOF)
     {
-        finishedReading = true;
+        isEnd = true;
     }
     getstream(fp);
     return ch;
@@ -333,9 +331,9 @@ terminals findKeyword(char *lexeme)
 {
     for (int i = 0; i < KC; i++)
     {
-        if (lexeme == keywords[i].key)
+        if (lexeme == keywords[i]->key)
         {
-            return keywords[i].token;
+            return keywords[i]->key;
         }
     }
     return NULL;
@@ -358,7 +356,8 @@ SymbolItem tokenize(char *lex, terminals g, int line)
         nextSymbolItem.fVal = atof(lex);
         break;
     case TK_FIELDID:
-        nextSymbolItem.token = findKeyword(nextSymbolItem.lexeme) if (nextSymbolItem.token == NULL)
+        nextSymbolItem.token = findKeyword(nextSymbolItem.lexeme);
+        if (nextSymbolItem.token == NULL)
         {
             nextSymbolItem.token = TK_FIELDID;
         }
@@ -378,7 +377,7 @@ SymbolItem tokenize(char *lex, terminals g, int line)
     beginPtr = forwardPtr;
     return nextSymbolItem;
 }
-SymbolItem dfa(FILE *fp)
+SymbolItem getToken(FILE *fp)
 {
     beginPtr = forwardPtr;
     char ch = getNextCharacter(fp);
@@ -389,7 +388,7 @@ SymbolItem dfa(FILE *fp)
     while (dfastate >= 0)
     {
 
-        if (finishedReading)
+        if (isEnd)
         {
             newSymbolItem.eof = true;
             newSymbolItem.lexeme = NULL;
@@ -1025,20 +1024,20 @@ SymbolItem dfa(FILE *fp)
             return tokenize(getLexeme(), TK_COMMENT, lineCount);
             break;
         }
-        if (dfaState == -2)
+        if (dfastate == -2)
         {
             return errorHandle(-2, getLexeme(), lineCount);
         }
 
-        if (dfaState == -5)
+        if (dfastate == -5)
         {
             return errorHandle(-5, getLexeme(), lineCount);
         }
     }
-    nextSymbolItem.lexeme = NULL;
-    nextSymbolItem.lineCount = -1;
-    nextSymbolItem.token = NULL;
-    nextSymbolItem.iVal = 0;
-    nextSymbolItem.fVal = 0.0;
-    return nextSymbolItem;
+    newSymbolItem.lexeme = NULL;
+    newSymbolItem.lineCount = -1;
+    newSymbolItem.token = NULL;
+    newSymbolItem.iVal = 0;
+    newSymbolItem.fVal = 0.0;
+    return newSymbolItem;
 }
