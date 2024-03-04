@@ -1,8 +1,49 @@
-#include<"parserDef.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "parserDef.h"
+#include "parser.h"
+void addRule(int index, non_terminals nt, gitems *value, int size) {
+    LHSNode *lhsNode;
+    if(G->rules[index-1]==NULL){
+    lhsNode = (LHSNode*)malloc(sizeof(LHSNode));
+    lhsNode->rules=NULL;
+    lhsNode->lhs = nt;
+    }
+    ProductionRule *currentrulehead=lhsNode->rules;
+    ProductionRule *newRule = (ProductionRule*)malloc(sizeof(ProductionRule));
+    newRule->head = NULL;
+    newRule->next_rule = NULL;
+    if(currentrulehead==NULL){
+        lhsNode->rules=newRule;
+    }
+    else{
+        while(currentrulehead->next_rule!=NULL)
+        currentrulehead=currentrulehead->next_rule;
+    }
+    
+    // Create and add RHS nodes for the production rule
+    RHSNode* rhshead=(RHSNode *)malloc(sizeof(RHSNode));
+    RHSNode*rhsptr=rhshead;
+    rhshead->value=value[0];
+    for(int i = 1; i < size; i++) {
+        // Create a new RHSNode
+        RHSNode *rhsNode = (RHSNode *)malloc(sizeof(RHSNode));
+        // assign value .............................
+        rhsptr->next = rhsNode;
+        rhsNode->ptr = NULL; // You might need to set this depending on your needs
+        // Add the RHSNode to the production rule
+        rhsptr=rhsptr->next;
+    }
+
+    // Link the new production rule to the LHSNode
+    newRule->head=rhshead;
+    currentrulehead->next_rule=newRule;
+    // Add the LHSNode to the grammar
+    G->rules[index] = lhsNode;
+}
+
 void create_parse_table() {
     PT = (ParseTable*)malloc(sizeof(ParseTable));
     if (PT == NULL) {
