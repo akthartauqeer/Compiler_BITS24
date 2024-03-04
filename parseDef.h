@@ -20,13 +20,22 @@ typedef struct non_terminal_sets {
 } non_terminal_sets;
 
 //Nodes of Grammar Non-Terminals
-
-typedef struct rhs_node {
-    bool isT;  // Indicates whether it's a terminal or non-terminal
-    union {
+typedef union u {
         terminals t;            // Terminal value
         non_terminals non_t;     // Non-terminal value
     } value;
+
+    typedef struct tree_node {
+    struct tree_node* parent;  
+    struct tree_node* firstChild;   
+    struct tree_node* rightSibling;  
+    // token* token_ptr;          // Pointer to the token associated with the node
+    bool isT;                  
+    value v;
+} treeNode;
+typedef struct rhs_node {
+    bool isT;  // Indicates whether it's a terminal or non-terminal
+    value v;
     struct rhs_node* next;  // Pointer to the next node in the list
     treeNode* ptr;
 } RHSNode;
@@ -52,17 +61,7 @@ typedef struct parse_table {
 } ParseTable;
 
 //parse tree
-typedef struct tree_node {
-    treeNode* parent;  
-    treeNode* firstChild;   
-    treeNode* rightSibling;   
-    token* token_ptr;          // Pointer to the token associated with the node
-    bool isT;                  
-    union {
-        terminals t;           // Terminal value
-        non_terminals non_t;    // Non-terminal value
-    } val;
-} treeNode;
+
 
 //stack for maintaining non-terminals
 typedef struct stack {
@@ -78,10 +77,7 @@ typedef struct follow {
 } followDS;
 typedef struct {
     bool isTer; // Flag indicating if it's a terminal or not
-    union {
-        terminals terminal;
-        non_terminals non_terminal;
-    } value;
+    value v;
 } gitems;
 
 followDS *follow_occurrence[NTC]; 
