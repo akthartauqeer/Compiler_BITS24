@@ -6,10 +6,9 @@
 #include <time.h>
 
 #define tablesize 10000000
-#define NTC 52
+#define NTC 54
 #define TC 59
 #define KC 28
-
 
 /*
 GROUP_NO_39
@@ -19,8 +18,6 @@ Tauqeer Akthar- 2021A7PS1628P
 Archisha Mehta - 2020B3A70779P
 Saloni Bhandari - 2020B1A71602P 
 */
-
-
 typedef enum{
     program, mainFunction, otherFunctions, function, input_par, output_par, parameter_list, dataType, 
     primitiveDatatype, constructedDatatype, A, stmts, remaining_list, typeDefinitions, typeDefinition, fieldDefinitions, 
