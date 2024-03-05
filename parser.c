@@ -1,6 +1,22 @@
 #include "parser.h"
 #include "lexerDef.h"
 
+gitems *createNonTerminal(non_terminals nt)
+{
+    gitems *item = (gitems *)malloc(sizeof(gitems));
+    item->isTer = false;
+    item->v.non_t = nt;
+    return item;
+}
+// Function to create and populate a gitem for terminal
+gitems *createTerminal(terminals t)
+{
+    gitems *item = (gitems *)malloc(sizeof(gitems));
+    item->isTer = true;
+    item->v.t = t;
+    return item;
+}
+
 void populateitems()
 {
     itemList = (gitems **)malloc((TC + NTC) * sizeof(gitems *));
@@ -117,52 +133,52 @@ void populateitems()
     itemList[110] = createNonTerminal(definetypestmt);
 }
 
-void addRule(int index, non_terminals nt, int size,gitems value[]) {
+void addRule(int index, non_terminals nt, int size, gitems *value)
+{
     LHSNode *lhsNode;
-    
-    G=(Grammar *)malloc(sizeof(Grammar));
-    for(int i=0;i<NTC;i++){
-        G->rules[i]=NULL;
+    if (G->rules[index - 1] == NULL)
+    {
+        lhsNode = (LHSNode *)malloc(sizeof(LHSNode));
+        lhsNode->rules = NULL;
+        lhsNode->lhs = nt;
     }
-    if(G->rules[index-1]==NULL){
-    lhsNode = (LHSNode*)malloc(sizeof(LHSNode));
-    lhsNode->rules=NULL;
-    lhsNode->lhs = nt;
-    }
-    ProductionRule *currentrulehead=lhsNode->rules;
-    ProductionRule *newRule = (ProductionRule*)malloc(sizeof(ProductionRule));
+    ProductionRule *currentrulehead = lhsNode->rules;
+    ProductionRule *newRule = (ProductionRule *)malloc(sizeof(ProductionRule));
     newRule->head = NULL;
     newRule->next_rule = NULL;
-    if(currentrulehead==NULL){
-        currentrulehead=newRule;
-        lhsNode->rules=newRule;
+    if (currentrulehead == NULL)
+    {
+        lhsNode->rules = newRule;
     }
-    else{
-        while(currentrulehead->next_rule!=NULL)
-        currentrulehead=currentrulehead->next_rule;
+    else
+    {
+        while (currentrulehead->next_rule != NULL)
+            currentrulehead = currentrulehead->next_rule;
     }
     // Create and add RHS nodes for the production rule
-    RHSNode* rhshead=(RHSNode *)malloc(sizeof(RHSNode));
-    RHSNode*rhsptr=rhshead;
-    rhshead->v=value[0].v;
-    rhshead->isT=value[0].isTer;
-    for(int i = 1; i < size; i++) {
+    RHSNode *rhshead = (RHSNode *)malloc(sizeof(RHSNode));
+    RHSNode *rhsptr = rhshead;
+    rhshead->v = value[0].v;
+    rhshead->isT = value[0].isTer;
+    for (int i = 1; i < size; i++)
+    {
         // Create a new RHSNode
         RHSNode *rhsNode = (RHSNode *)malloc(sizeof(RHSNode));
-        rhsNode->v=value[i].v;
-        rhsNode->isT=value[i].isTer;
-        rhsNode->next=NULL;
+        rhshead->v = value[i].v;
+        rhshead->isT = value[i].isTer;
         rhsptr->next = rhsNode;
         rhsNode->ptr = NULL; // You might need to set this depending on your needs
         // Add the RHSNode to the production rule
-        rhsptr=rhsptr->next;
+        rhsptr = rhsptr->next;
     }
+
     // Link the new production rule to the LHSNode
-    newRule->head=rhshead;
-    currentrulehead->next_rule=newRule;
+    newRule->head = rhshead;
+    currentrulehead->next_rule = newRule;
     // Add the LHSNode to the grammar
-    G->rules[index-1] = lhsNode;
+    G->rules[index] = lhsNode;
 }
+
 void addGrammarRules()
 {
     addrule(1, program, 2, {otherFunctions, mainFunction});
@@ -243,12 +259,12 @@ void addGrammarRules()
     addrule(47, var, 1, {TK_RNUM});                                               // 39a
     addrule(48, logicalOp, 1, {TK_AND});                                          // 40
     addrule(48, logicalOp, 1, {TK_OR});                                           // 40
-    addrule(49, relationalOp, 1, {TK_LT});                                          // 41
-    addrule(49, relationalOp, 1, {TK_LE});                                          // 41
-    addrule(49, relationalOp, 1, {TK_EQ});                                          // 41
-    addrule(49, relationalOp, 1, {TK_GT});                                          // 41
-    addrule(49, relationalOp, 1, {TK_GE});                                          // 41
-    addrule(49, relationalOp, 1, {TK_NE});                                          // 41
+    addrule(49, relationalOp, 1, {TK_LT});                                        // 41
+    addrule(49, relationalOp, 1, {TK_LE});                                        // 41
+    addrule(49, relationalOp, 1, {TK_EQ});                                        // 41
+    addrule(49, relationalOp, 1, {TK_GT});                                        // 41
+    addrule(49, relationalOp, 1, {TK_GE});                                        // 41
+    addrule(49, relationalOp, 1, {TK_NE});                                        // 41
     addrule(50, returnStmt, 3, {TK_RETURN, optionalReturn, TK_SEM});              // 42
     addrule(51, optionalReturn, 3, {TK_SQL, idList, TK_SQR});                     // 43
     addrule(51, optionalReturn, 1, {EPS});
@@ -282,21 +298,20 @@ void initiate_parse_table()
 {
     for (int i = 0; i < NTC; i++)
     {
-        LHSNode *current_lhs = G->rules[i];
+        LHSNode *current_lhs = G->rules[i]->rules;
         while (current_lhs != NULL)
         {
             ProductionRule *current_rule = current_lhs->rules;
             while (current_rule != NULL)
             {
                 RHSNode *rhs_node = current_rule->head;
-                =
-                    if (rhs_node->isT)
+                if (rhs_node->isT)
                 {
-                    PT->table[i][rhs_node->value.t] = current_rule;
+                    PT->table[i][rhs_node->v.t] = current_rule;
                 }
                 else
                 {
-                    terminal_node *first_terminal = first_follow_sets[rhs_node->value.non_t]->first_set->head;
+                    terminal_node *first_terminal = first_follow_sets[rhs_node->v.non_t].first_set->head;
                     while (first_terminal != NULL)
                     {
                         PT->table[i][first_terminal->t] = current_rule;
@@ -306,7 +321,7 @@ void initiate_parse_table()
                 current_rule = current_rule->next_rule;
             }
 
-            current_lhs = current_lhs->next;
+            current_lhs = current_lhs->rules;
         }
     }
 }
@@ -691,6 +706,353 @@ void compute_follow()
     {
         find_followset(i);
     }
+}
+
+bool createParseTree(SymbolItem *head)
+{
+    helperStack *Stack = (helperStack *)malloc(sizeof(helperStack));
+    if (Stack == NULL){
+        fprintf(stderr, "Memory allocation failed for Stack.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    ProductionRule *startRule = PT->table[program][head->type];
+    if (startRule == NULL)
+    {
+        fprintf(stderr, "No production rule found for the start symbol.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    StackNode *startNode = (StackNode *)malloc(sizeof(StackNode));
+    if (startNode == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for StackNode.\n");
+        exit(EXIT_FAILURE);
+    }
+    startNode->isT = false;
+    startNode->value.non_t = program;
+    startNode->next = NULL;
+    Stack->top = startNode;
+    Stack->size = 1;
+
+    token *currentToken = head;
+    treeNode *root = NULL;
+    treeNode *currentParent = NULL;
+
+    root = (treeNode *)malloc(sizeof(treeNode));
+    if (root == NULL)
+    {
+        printf("Memory allocation failed for root node.\n");
+        exit(EXIT_FAILURE);
+    }
+    root->parent = NULL;
+    root->firstChild = NULL;
+    root->rightSibling = NULL;
+    root->token_ptr = NULL;
+    root->isT = false;
+    root->v.non_t = program;
+    currentParent = root;
+
+    while (currentToken != NULL)
+    {
+        if (Stack->top == NULL)
+        {
+            fprintf(stderr, "Error: Stack underflow.\n");
+            exit(EXIT_FAILURE);
+        }
+        bool is_terminal = Stack->top->isT;
+        value currentSymbol = Stack->top->value;
+
+        if (is_terminal)
+        {
+            if (currentSymbol.t == currentToken->type)
+            {
+                treeNode *newNode = (treeNode *)malloc(sizeof(treeNode));
+                if (newNode == NULL)
+                {
+                    printf("Memory allocation failed for tree node.\n");
+                    exit(EXIT_FAILURE);
+                }
+                newNode->parent = currentParent;
+                newNode->firstChild = NULL;
+                newNode->rightSibling = NULL;
+                newNode->token_ptr = currentToken;
+                newNode->isT = true;
+                newNode->v.t = currentToken->type;
+                if (currentParent->firstChild == NULL)
+                {
+                    // If the parent node doesn't have a child yet
+                    currentParent->firstChild = newNode;
+                }
+                else
+                {
+                    treeNode *sibling = currentParent->firstChild;
+                    while (sibling->rightSibling != NULL)
+                    {
+                        sibling = sibling->rightSibling;
+                    }
+                    sibling->rightSibling = newNode;
+                }
+                StackNode *temp = Stack->top;
+                Stack->top = Stack->top->next;
+                free(temp);
+                // Move to the next token
+                currentToken = currentToken->next;
+            }
+            else
+            {
+                // Error: Mismatched terminal symbol
+                printf("Error: Unexpected token '%s' at line %d\n", getTokenName(currentToken->type), currentToken->line);
+                return false;
+            }
+        }
+
+        else
+        {
+
+            // Handle non-terminal symbol
+            ProductionRule *productionRule = PT->table[currentSymbol.non_t][currentToken->type];
+            if (productionRule == NULL)
+            {
+                // Error: No production rule found in the parsing table
+                printf("Error: No production rule found for non-terminal '%s' and token '%s' at line %d\n",
+                       getNonTerminalName(currentSymbol.non_t), getTokenName(currentToken->type), currentToken->line);
+                return false;
+            }
+            else
+            {
+                // Apply the production rule
+
+                // Pop the stack
+                StackNode *temp = Stack->top;
+                Stack->top = Stack->top->next;
+                free(temp);
+
+                // Iterate through the RHS of the production rule in reverse
+                RHSNode *currentRHS = productionRule->tail; // Assuming tail points to the last RHSNode
+                while (currentRHS != productionRule->head)
+                {
+                    // Create a new stack node for each RHS symbol
+                    StackNode *rhsNode = (StackNode *)malloc(sizeof(StackNode));
+                    if (rhsNode == NULL)
+                    {
+                        printf("Memory allocation failed for StackNode.\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    // Initialize the new stack node
+                    rhsNode->isT = currentRHS->isT;
+                    if (currentRHS->isT)
+                    {
+                        rhsNode->value.t = currentRHS->v.t;
+                    }
+                    else
+                    {
+                        rhsNode->value.non_t = currentRHS->v.non_t;
+                    }
+                    // Push the RHS symbol onto the stack
+                    rhsNode->next = Stack->top;
+                    Stack->top = rhsNode;
+
+                    // Move to the previous RHS symbol
+                    currentRHS = currentRHS->prev;
+                }
+            }
+        }
+    }
+}
+
+bool createParseTree(SymbolItem *head)
+{
+    helperStack *Stack = (helperStack *)malloc(sizeof(helperStack));
+    if (Stack == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for Stack.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    StackNode *startNode = (StackNode *)malloc(sizeof(StackNode));
+    if (startNode == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for StackNode.\n");
+        exit(EXIT_FAILURE);
+    }
+    startNode->isT = false;
+    startNode->value.non_t = program;
+    startNode->next = NULL;
+    Stack->top = startNode;
+    Stack->size = 1;
+
+    treeNode *root = (treeNode *)malloc(sizeof(treeNode));
+    if (root == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for root node.\n");
+        exit(EXIT_FAILURE);
+    }
+    root->parent = NULL;
+    root->firstChild = NULL;
+    root->rightSibling = NULL;
+    root->isT = false;
+    root->v.non_t = program;
+    treeNode *currentParent = root;
+
+    token *currentToken = head;
+
+    while (currentToken != NULL)
+    {
+        if (Stack->top == NULL)
+        {
+            fprintf(stderr, "Error: Stack underflow.\n");
+            exit(EXIT_FAILURE);
+        }
+        bool is_terminal = Stack->top->isT;
+        value currentSymbol = Stack->top->value;
+
+        if (is_terminal)
+        {
+            if (currentSymbol.t == currentToken->type)
+            {
+                treeNode *newNode = (treeNode *)malloc(sizeof(treeNode));
+                if (newNode == NULL)
+                {
+                    fprintf(stderr, "Memory allocation failed for tree node.\n");
+                    exit(EXIT_FAILURE);
+                }
+                newNode->parent = currentParent;
+                newNode->firstChild = NULL;
+                newNode->rightSibling = NULL;
+                newNode->isT = true;
+                newNode->v.t = currentToken->type;
+                if (currentParent->firstChild == NULL)
+                {
+                    currentParent->firstChild = newNode;
+                }
+                else
+                {
+                    treeNode *sibling = currentParent->firstChild;
+                    while (sibling->rightSibling != NULL)
+                    {
+                        sibling = sibling->rightSibling;
+                    }
+                    sibling->rightSibling = newNode;
+                }
+                StackNode *temp = Stack->top;
+                Stack->top = Stack->top->next;
+                free(temp);
+                currentToken = currentToken->next;
+            }
+            else
+            {
+                fprintf(stderr, "Error: Unexpected token '%s' at line %d\n", getTokenName(currentToken->type), currentToken->line);
+                return false;
+            }
+        }
+        else
+        {
+            ProductionRule *productionRule = PT->table[currentSymbol.non_t][currentToken->type];
+            if (productionRule == NULL)
+            {
+                fprintf(stderr, "Error: No production rule found for non-terminal '%s' and token '%s' at line %d\n",
+                        getNonTerminalName(currentSymbol.non_t), getTokenName(currentToken->type), currentToken->line);
+                return false;
+            }
+            else
+            {
+                StackNode *temp = Stack->top;
+                Stack->top = Stack->top->next;
+                free(temp);
+
+                RHSNode *currentRHS = productionRule->tail;
+                while (currentRHS != NULL)
+                {
+                    StackNode *rhsNode = (StackNode *)malloc(sizeof(StackNode));
+                    if (rhsNode == NULL)
+                    {
+                        fprintf(stderr, "Memory allocation failed for StackNode.\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    rhsNode->isT = currentRHS->isT;
+                    if (currentRHS->isT)
+                    {
+                        rhsNode->value.t = currentRHS->v.t;
+                    }
+                    else
+                    {
+                        rhsNode->value.non_t = currentRHS->v.non_t;
+                    }
+                    rhsNode->next = Stack->top;
+                    Stack->top = rhsNode;
+                    currentRHS = currentRHS->prev;
+                }
+
+                currentRHS = productionRule->head;
+                while (currentRHS != NULL)
+                {
+                    treeNode *newNode = (treeNode *)malloc(sizeof(treeNode));
+                    if (newNode == NULL)
+                    {
+                        fprintf(stderr, "Memory allocation failed for tree node.\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    newNode->parent = currentParent;
+                    newNode->firstChild = NULL;
+                    newNode->rightSibling = NULL;
+                    newNode->isT = currentRHS->isT;
+                    if (currentRHS->isT)
+                    {
+                        newNode->v.t = currentRHS->v.t;
+                    }
+                    else
+                    {
+                        newNode->v.non_t = currentRHS->v.non_t;
+                    }
+                    if (currentParent->firstChild == NULL)
+                    {
+                        currentParent->firstChild = newNode;
+                    }
+                    else
+                    {
+                        treeNode *sibling = currentParent->firstChild;
+                        while (sibling->rightSibling != NULL)
+                        {
+                            sibling = sibling->rightSibling;
+                        }
+                        sibling->rightSibling = newNode;
+                    }
+                    currentParent = newNode;
+                    currentRHS = currentRHS->next;
+                }
+            }
+        }
+    }
+
+    printf("Parsing successful.\n");
+    return true;
+}
+
+void printParseTree(treeNode *node, int depth)
+{
+    if (node == NULL)
+    {
+        return;
+    }
+    // Print current node
+    for (int i = 0; i < depth; i++)
+    {
+        printf("  "); // Indent according to depth
+    }
+
+    if (node->isT)
+    {
+        printf("Terminal: %s\n", terms[node->v.t]); // define function getTokenName This function takes a token type (enumeration value) as input and returns a string representing the name or description of that token
+    }
+    else
+    {
+        printf("Non-terminal: %s\n", non_terms[node->v.non_t]);
+    }
+
+    // Print children recursively
+    printParseTree(node->firstChild, depth + 1);
+    printParseTree(node->rightSibling, depth); // Print right sibling at same depth
 }
 
 int main()
