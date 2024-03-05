@@ -117,52 +117,52 @@ void populateitems()
     itemList[110] = createNonTerminal(definetypestmt);
 }
 
-void addRule(int index, non_terminals nt, int size, gitems *value)
-{
+void addRule(int index, non_terminals nt, int size,gitems value[]) {
     LHSNode *lhsNode;
-    if (G->rules[index - 1] == NULL)
-    {
-        lhsNode = (LHSNode *)malloc(sizeof(LHSNode));
-        lhsNode->rules = NULL;
-        lhsNode->lhs = nt;
+    
+    G=(Grammar *)malloc(sizeof(Grammar));
+    for(int i=0;i<NTC;i++){
+        G->rules[i]=NULL;
     }
-    ProductionRule *currentrulehead = lhsNode->rules;
-    ProductionRule *newRule = (ProductionRule *)malloc(sizeof(ProductionRule));
+    if(G->rules[index-1]==NULL){
+    lhsNode = (LHSNode*)malloc(sizeof(LHSNode));
+    lhsNode->rules=NULL;
+    lhsNode->lhs = nt;
+    }
+    ProductionRule *currentrulehead=lhsNode->rules;
+    ProductionRule *newRule = (ProductionRule*)malloc(sizeof(ProductionRule));
     newRule->head = NULL;
     newRule->next_rule = NULL;
-    if (currentrulehead == NULL)
-    {
-        lhsNode->rules = newRule;
+    if(currentrulehead==NULL){
+        currentrulehead=newRule;
+        lhsNode->rules=newRule;
     }
-    else
-    {
-        while (currentrulehead->next_rule != NULL)
-            currentrulehead = currentrulehead->next_rule;
+    else{
+        while(currentrulehead->next_rule!=NULL)
+        currentrulehead=currentrulehead->next_rule;
     }
     // Create and add RHS nodes for the production rule
-    RHSNode *rhshead = (RHSNode *)malloc(sizeof(RHSNode));
-    RHSNode *rhsptr = rhshead;
-    rhshead->v = value[0].v;
-    rhshead->isT = value[0].isTer;
-    for (int i = 1; i < size; i++)
-    {
+    RHSNode* rhshead=(RHSNode *)malloc(sizeof(RHSNode));
+    RHSNode*rhsptr=rhshead;
+    rhshead->v=value[0].v;
+    rhshead->isT=value[0].isTer;
+    for(int i = 1; i < size; i++) {
         // Create a new RHSNode
         RHSNode *rhsNode = (RHSNode *)malloc(sizeof(RHSNode));
-        rhshead->v = value[i].v;
-        rhshead->isT = value[i].isTer;
+        rhsNode->v=value[i].v;
+        rhsNode->isT=value[i].isTer;
+        rhsNode->next=NULL;
         rhsptr->next = rhsNode;
         rhsNode->ptr = NULL; // You might need to set this depending on your needs
         // Add the RHSNode to the production rule
-        rhsptr = rhsptr->next;
+        rhsptr=rhsptr->next;
     }
-
     // Link the new production rule to the LHSNode
-    newRule->head = rhshead;
-    currentrulehead->next_rule = newRule;
+    newRule->head=rhshead;
+    currentrulehead->next_rule=newRule;
     // Add the LHSNode to the grammar
-    G->rules[index] = lhsNode;
+    G->rules[index-1] = lhsNode;
 }
-
 void addGrammarRules()
 {
     addrule(1, program, 2, {otherFunctions, mainFunction});
