@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <string.h>
 
 // initialising lexer
 FILE *initialise(char *inputFile, long long int buff_size)
@@ -10,7 +11,7 @@ FILE *initialise(char *inputFile, long long int buff_size)
     {
         printf("ERROR! File not opened.\n");
     }
-    int size = fread(twinBuffer.firstBuf, sizeof(char), BUFFER_SIZE, fp);
+    int size = fread(twinBuffer.firstBuf, sizeof(char), BUFFER_SIZE, fileptr);
     if (size < BUFFER_SIZE)
     {
         twinBuffer.firstBuf[size] = EOF;
@@ -18,12 +19,59 @@ FILE *initialise(char *inputFile, long long int buff_size)
 
     firstBufLoadable = false;
     secondBufLoadable = true;
-    lineCount = 1;
+    lineCount = 0;
     isEnd = false;
     beginPtr = twinBuffer.firstBuf;
     forwardPtr = twinBuffer.firstBuf;
     initializeSymbolTable();
-    return fp;
+    return fileptr;
+}
+
+void initializeKeywords()
+{
+    keyword key[] = {
+        {"_main", TK_MAIN},
+        {"as", TK_AS},
+        {"call", TK_CALL},
+        {"definetype", TK_DEFINETYPE},
+        {"else", TK_ELSE},
+        {"end", TK_END},
+        {"endif", TK_ENDIF},
+        {"endrecord", TK_ENDRECORD},
+        {"endunion", TK_ENDUNION},
+        {"endwhile", TK_ENDWHILE},
+        {"global", TK_GLOBAL},
+        {"if", TK_IF},
+        {"input", TK_INPUT},
+        {"int", TK_INT},
+        {"list", TK_LIST},
+        {"output", TK_OUTPUT},
+        {"parameters", TK_PARAMETERS},
+        {"parameter", TK_PARAMETER},
+        {"read", TK_READ},
+        {"real", TK_REAL},
+        {"record", TK_RECORD},
+        {"return", TK_RETURN},
+        {"then", TK_THEN},
+        {"type", TK_TYPE},
+        {"union", TK_UNION},
+        {"while", TK_WHILE},
+        {"with", TK_WITH},
+        {"write", TK_WRITE},
+    };
+
+        for (int i = 0; i < KC; i++) {
+        keywords[i] = (keyword*)malloc(sizeof(keyword)); // Allocate memory for each keyword
+        if (keywords[i] == NULL) {
+            fprintf(stderr, "Memory allocation failed for keywords[%d].\n", i);
+            exit(EXIT_FAILURE);
+        }
+        // Copy the static keyword info into the dynamically allocated memory
+        keywords[i]->key = strdup(key[i].key);
+        keywords[i]->token = key[i].token;
+    }
+        
+
 }
 
 // Function to initialize SymbolTable
@@ -40,7 +88,7 @@ void initializeSymbolTable()
         table->data[i] = NULL;
     }
     table->currentsize = 0;
-    initializeKeyWords();
+    initializeKeywords();
     // Insert keywords into the symbol table
     for (int i = 0; i < KC; i++)
     {
@@ -130,54 +178,15 @@ bool lookup(char *lexeme)
     return false;
 }
 
-void initializeKeywords()
-{
-    keywords = {
-        {"_main", TK_MAIN},
-        {"as", TK_AS},
-        {"call", TK_CALL},
-        {"definetype", TK_DEFINETYPE},
-        {"else", TK_ELSE},
-        {"end", TK_END},
-        {"endif", TK_ENDIF},
-        {"endrecord", TK_ENDRECORD},
-        {"endunion", TK_ENDUNION},
-        {"endwhile", TK_ENDWHILE},
-        {"global", TK_GLOBAL},
-        {"if", TK_IF},
-        {"input", TK_INPUT},
-        {"int", TK_INT},
-        {"list", TK_LIST},
-        {"output", TK_OUTPUT},
-        {"parameters", TK_PARAMETERS},
-        {"parameter", TK_PARAMETER},
-        {"read", TK_READ},
-        {"real", TK_REAL},
-        {"record", TK_RECORD},
-        {"return", TK_RETURN},
-        {"then", TK_THEN},
-        {"type", TK_TYPE},
-        {"union", TK_UNION},
-        {"while", TK_WHILE},
-        {"with", TK_WITH},
-        {"write", TK_WRITE},
-    };
-    for (int i = 0; i < KC; i++)
-    {
-        keywords[i]->key = table[i][0];
-        keywords[i]->token = table[i][1];
-    }
-}
-
 // error handling
 SymbolItem errorHandle(int err, char *lex, int line)
 {
     SymbolItem nextSymbolItem;
-    nextSymbolItem.token.value = 0;
+    nextSymbolItem.token = 0;
     nextSymbolItem.lexeme = NULL;
     nextSymbolItem.iVal = 0;
     nextSymbolItem.fVal = 0.00;
-    nextSymbolItem.lineCountf = line;
+    nextSymbolItem.lineCount = line;
     if (err == -2)
         printf("Identified lexical error at line %d. Type: Unknown character %s\n", line, lex);
     else if (err == -3)
@@ -190,37 +199,47 @@ SymbolItem errorHandle(int err, char *lex, int line)
     return nextSymbolItem;
 }
 
-// get lexeme
-char *getLexeme()
-{
+char *getLexeme() {
+    int lexemeLength;
     char *lexeme;
-    bool begin = (beginPtr < (twinBuffer.firstBuf + BUFFER_SIZE) && beginPtr >= twinBuffer.firstBuf);
-    bool forward = (forwardPtr < (twinBuffer.firstBuf + BUFFER_SIZE) && forwardPtr >= twinBuffer.firstBuf);
-    int sizeInFirst, sizeInSecond, size;
-    if ((begin && forward) || (!begin && !forward))
-    {
-        size = (forwardPtr - beginPtr);
-        lexeme = (char *)malloc(size * sizeof(char));
-        strncpy(lexeme, beginPtr, size);
+
+    // Determine if the lexeme is within the first buffer, the second buffer, or spans across both.
+    if ((beginPtr >= twinBuffer.firstBuf && beginPtr < twinBuffer.firstBuf + BUFFER_SIZE) &&
+        (forwardPtr >= twinBuffer.firstBuf && forwardPtr <= twinBuffer.firstBuf + BUFFER_SIZE)) {
+        // Both pointers are within the first buffer.
+        lexemeLength = forwardPtr - beginPtr;
+    } else if ((beginPtr >= twinBuffer.secondBuf && beginPtr < twinBuffer.secondBuf + BUFFER_SIZE) &&
+               (forwardPtr >= twinBuffer.secondBuf && forwardPtr <= twinBuffer.secondBuf + BUFFER_SIZE)) {
+        // Both pointers are within the second buffer.
+        lexemeLength = forwardPtr - beginPtr;
+    } else {
+        // The lexeme spans across buffers.
+        lexemeLength = (twinBuffer.firstBuf + BUFFER_SIZE - beginPtr) + (forwardPtr - twinBuffer.secondBuf);
     }
-    else if (begin && !forward)
-    {
-        sizeInFirst = ((twinBuffer.firstBuf + BUFFER_SIZE - 1) - beginPtr) + 1;
-        sizeInSecond = (forwardPtr - twinBuffer.secondBuf);
-        size = sizeInFirst + sizeInSecond;
-        lexeme = (char *)malloc(sizeof(char) * size);
-        strncpy(lexeme, beginPtr, sizeInFirst);
-        strncpy(lexeme + sizeInFirst, twinBuffer.secondBuf, sizeInSecond);
+
+    // Allocate memory for the lexeme, including space for the null terminator.
+    lexeme = (char *)malloc((lexemeLength + 1) * sizeof(char));
+    if (!lexeme) {
+        fprintf(stderr, "Memory allocation failed for lexeme.\n");
+        exit(EXIT_FAILURE);
     }
-    else
-    {
-        sizeInFirst = (forwardPtr - twinBuffer.firstBuf);
-        sizeInSecond = ((twinBuffer.secondBuf + BUFFER_SIZE - 1) - beginPtr) + 1;
-        size = sizeInFirst+sizeInSecond;
-        lexeme = (char *) malloc(size * sizeof(char));
-        strncpy(lexeme, beginPtr, sizeInSecond);
-        strncpy(lexeme + sizeInSecond, twinBuffer.firstBuf, sizeInFirst);
+
+    if ((beginPtr >= twinBuffer.firstBuf && beginPtr < twinBuffer.firstBuf + BUFFER_SIZE) &&
+        (forwardPtr >= twinBuffer.firstBuf && forwardPtr <= twinBuffer.firstBuf + BUFFER_SIZE)) {
+        // Copy lexeme from the first buffer.
+        strncpy(lexeme, beginPtr, lexemeLength);
+    } else if ((beginPtr >= twinBuffer.secondBuf && beginPtr < twinBuffer.secondBuf + BUFFER_SIZE) &&
+               (forwardPtr >= twinBuffer.secondBuf && forwardPtr <= twinBuffer.secondBuf + BUFFER_SIZE)) {
+        // Copy lexeme from the second buffer.
+        strncpy(lexeme, beginPtr, lexemeLength);
+    } else {
+        // Copy lexeme spanning across buffers: part from the end of the first buffer and part from the start of the second buffer.
+        int firstPartLength = twinBuffer.firstBuf + BUFFER_SIZE - beginPtr;
+        strncpy(lexeme, beginPtr, firstPartLength);
+        strncpy(lexeme + firstPartLength, twinBuffer.secondBuf, lexemeLength - firstPartLength);
     }
+
+    lexeme[lexemeLength] = '\0'; // Null-terminate the lexeme string.
     return lexeme;
 }
 
@@ -262,54 +281,45 @@ FILE *getstream(FILE *fp)
     return fp;
 }
 
-// removing the comments
-void removeComments(char *testFile, char *cleanFile)
-{
+void removeComments(char *testFile, char *cleanFile) {
     FILE *test = fopen(testFile, "r");
     FILE *clean = fopen(cleanFile, "w");
 
-    if (!test || !clean)
-    {
+    if (!test || !clean) {
         printf("File opening failed!\n");
         return;
     }
+    
 
-    int openFlag = 0;
-    int commentFlag = 0;
-    char c = getc(test);
-    while (c != EOF)
-    {
-        if (c == '\n')
-        {
-            openFlag = 1;
-            putc('\n', clean);
+    char c;
+    bool isComment = false;
+    while ((c = fgetc(test)) != EOF) {
+        // Detect comment start and switch to comment mode
+        if (c == '%') {
+            isComment = true;
         }
-        c = getc(test);
-        if (openFlag == 1)
-        {
-            if (c == '%')
-            {
-                commentFlag = 1;
+
+        // Check if the current character is the end of a line
+        if (c == '\n') {
+            // If it was a comment line, ensure a newline is written to keep line numbers consistent
+            if (isComment) {
+                fputc('\n', clean);
+                isComment = false; // Reset comment flag for the next line
+            } else {
+                // If it wasn't a comment, write the newline character as usual
+                fputc(c, clean);
             }
-            else
-            {
-                openFlag = 0;
-                putc(c, clean);
-            }
+        } else if (!isComment) {
+            // If not in comment mode, write the character to the output file
+            fputc(c, clean);
         }
-        if (commentFlag == 1)
-        {
-            if (c == '\n')
-            {
-                commentFlag = 0;
-                putc('\n', clean);
-            }
-        }
-        else
-        {
-            putc(c, clean);
+
+        // If the end of the file is reached while still in comment mode, ensure a newline is written
+        if (isComment && c == EOF) {
+            fputc('\n', clean);
         }
     }
+
     fclose(test);
     fclose(clean);
 }
@@ -331,12 +341,12 @@ terminals findKeyword(char *lexeme)
 {
     for (int i = 0; i < KC; i++)
     {
-        if (lexeme == keywords[i]->key)
+        if (strcmp(lexeme, keywords[i]->key) == 0)
         {
-            return keywords[i]->key;
+            return keywords[i]->token;
         }
     }
-    return NULL;
+    return -1;
 }
 // tokenize
 SymbolItem tokenize(char *lex, terminals g, int line)
@@ -357,7 +367,7 @@ SymbolItem tokenize(char *lex, terminals g, int line)
         break;
     case TK_FIELDID:
         nextSymbolItem.token = findKeyword(nextSymbolItem.lexeme);
-        if (nextSymbolItem.token == NULL)
+        if (nextSymbolItem.token == -1)
         {
             nextSymbolItem.token = TK_FIELDID;
         }
@@ -377,13 +387,14 @@ SymbolItem tokenize(char *lex, terminals g, int line)
     beginPtr = forwardPtr;
     return nextSymbolItem;
 }
+
 SymbolItem getToken(FILE *fp)
 {
     beginPtr = forwardPtr;
     char ch = getNextCharacter(fp);
     int dfastate = 0;
     SymbolItem newSymbolItem;
-    int lineCount;
+    //int lineCount;
 
     while (dfastate >= 0)
     {
@@ -415,6 +426,7 @@ SymbolItem getToken(FILE *fp)
                 ch = getNextCharacter(fp);
                 break;
             case '+':
+                return tokenize("+", TK_PLUS, lineCount);
                 dfastate = 30;
                 break;
             case '/':
@@ -427,21 +439,26 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 32;
                 break;
             case ')':
+                return tokenize(")", TK_CL, lineCount);
                 dfastate = 29;
                 break;
             case ';':
-                dfastate = 25;
+                return tokenize(";", TK_SEM, lineCount);
+                //dfastate = 25;
                 break;
             case ':':
-                dfastate = 26;
+                return tokenize(":", TK_COLON, lineCount);
+                //dfastate = 26;
                 break;
             case '.':
                 dfastate = 27;
                 break;
             case '(':
-                dfastate = 28;
+                return tokenize("(", TK_CL, lineCount);
+                //dfastate = 28;
                 break;
             case ',':
+                return tokenize(",", TK_COMMA, lineCount);
                 dfastate = 24;
                 break;
             case '~':
@@ -451,10 +468,12 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 37;
                 break;
             case '[':
-                dfastate = 41;
+                return tokenize("[", TK_SQL, lineCount);
+                //dfastate = 41;
                 break;
             case ']':
-                dfastate = 42;
+                return tokenize("]", TK_SQR, lineCount);
+                //dfastate = 42;
                 break;
             case '%':
                 dfastate = 56;
@@ -500,6 +519,7 @@ SymbolItem getToken(FILE *fp)
                     dfastate = -2;
                 }
             }
+            break ;
 
         case 1:
             ch = getNextCharacter(fp);
@@ -550,6 +570,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 4:
+            forwardPtr--;
             return tokenize(getLexeme(), TK_ID, lineCount);
             break;
 
@@ -566,6 +587,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 6:
+        forwardPtr--;
             return tokenize(getLexeme(), TK_FIELDID, lineCount);
             break;
         case 7:
@@ -613,6 +635,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 10:
+            forwardPtr--;
             return tokenize(getLexeme(), TK_FUNID, lineCount);
             break;
 
@@ -645,6 +668,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 13:
+        forwardPtr--;
             return tokenize(getLexeme(), TK_RUID, lineCount);
             break;
 
@@ -754,60 +778,62 @@ SymbolItem getToken(FILE *fp)
             dfastate = 23;
             break;
         case 22:
+        forwardPtr--;
             return tokenize(getLexeme(), TK_NUM, lineCount);
             break;
 
         case 23:
+        forwardPtr--;
             return tokenize(getLexeme(), TK_RNUM, lineCount);
             break;
 
         case 24:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_COMMA, lineCount);
             break;
 
         case 25:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_SEM, lineCount);
             break;
 
         case 26:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_COLON, lineCount);
             break;
 
         case 27:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_DOT, lineCount);
             break;
 
         case 28:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_OP, lineCount);
             break;
 
         case 29:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_CL, lineCount);
             break;
 
         case 30:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_PLUS, lineCount);
             break;
 
         case 31:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_MINUS, lineCount);
             break;
 
         case 32:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_MUL, lineCount);
             break;
 
         case 33:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_DIV, lineCount);
             break;
 
@@ -838,7 +864,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 36:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_AND, lineCount);
             break;
 
@@ -869,22 +895,22 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 39:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_OR, lineCount);
             break;
 
         case 40:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_NOT, lineCount);
             break;
 
         case 41:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_SQL, lineCount);
             break;
 
         case 42:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_SQR, lineCount);
             break;
 
@@ -902,7 +928,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 44:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_EQ, lineCount);
             break;
 
@@ -920,7 +946,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 46:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_NE, lineCount);
             break;
 
@@ -943,12 +969,12 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 48:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_LT, lineCount);
             break;
 
         case 49:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_LE, lineCount);
             break;
 
@@ -979,7 +1005,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 52:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_ASSIGNOP, lineCount);
             break;
 
@@ -997,19 +1023,19 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 54:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_GT, lineCount);
             break;
 
         case 55:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_GE, lineCount);
             break;
 
         case 56:
             ch = getNextCharacter(fp);
 
-            if (ch == '/n')
+            if (ch == '\n')
             {
                 dfastate = 57;
             }
@@ -1020,7 +1046,7 @@ SymbolItem getToken(FILE *fp)
             break;
 
         case 57:
-            forwardPtr++;
+            //forwardPtr++;
             return tokenize(getLexeme(), TK_COMMENT, lineCount);
             break;
         }
@@ -1036,8 +1062,46 @@ SymbolItem getToken(FILE *fp)
     }
     newSymbolItem.lexeme = NULL;
     newSymbolItem.lineCount = -1;
-    newSymbolItem.token = NULL;
+    newSymbolItem.token = -1;
     newSymbolItem.iVal = 0;
     newSymbolItem.fVal = 0.0;
     return newSymbolItem;
 }
+
+// int main(void) {
+//     char *sourceFile = "test1.txt";
+//     char *cleanFile = "cleaned.txt";
+
+//     // Remove comments from the source file and save the result to the cleaned file
+//     removeComments(sourceFile, cleanFile);
+
+//     // Initialize the lexer with the cleaned file
+//     FILE *fp = initialise(cleanFile, BUFFER_SIZE);
+//     if (!fp) {
+//         fprintf(stderr, "Failed to initialize lexer with file: %s\n", cleanFile);
+//         return 1;
+//     }
+
+//     // Fetch and print tokens until the end of the file
+//     SymbolItem currToken;
+//     int tokenCount = 0;
+//     while (!isEnd) {
+//         currToken = getToken(fp);
+
+//         // Check if a valid token is fetched
+//         if (currToken.lexeme != NULL) {
+//             printf("Token: %s, Lexeme: %s\n", terms[currToken.token], currToken.lexeme);
+//             tokenCount++;
+
+//             // Assuming dynamic memory allocation for lexeme, it should be freed after use
+//             free(currToken.lexeme);
+//         }
+//     }
+
+//     printf("Total number of tokens: %d\n", tokenCount);
+
+//     // Close the file and clean up if necessary
+//     fclose(fp);
+
+//     return 0;
+// }
