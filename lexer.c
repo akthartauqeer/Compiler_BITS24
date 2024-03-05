@@ -1182,7 +1182,7 @@ void freeTokenList(TokenNode *head){
 
 
 
-
+//correct main
 // int main(void) {
 //     char *sourceFile = "test1.txt";
 //     char *cleanFile = "cleaned.txt";
@@ -1200,6 +1200,8 @@ void freeTokenList(TokenNode *head){
 //     // Fetch and print tokens until the end of the file
 //     SymbolItem currToken;
 //     int tokenCount = 0;
+//     lineCount = 1; 
+
 //     while (!isEnd) {
 //         currToken = getToken(fp);
 
@@ -1221,37 +1223,37 @@ void freeTokenList(TokenNode *head){
 //     return 0;
 // }
 
-int main(void) {
-    char* sourceFile = "test1.txt";
-    char* cleanFile = "cleaned.txt";
+// int main(void) {
+//     char* sourceFile = "test1.txt";
+//     char* cleanFile = "cleaned.txt";
 
-    removeComments(sourceFile, cleanFile);
+//     removeComments(sourceFile, cleanFile);
 
-    FILE* fp = initialise(sourceFile, BUFFER_SIZE);
-    if (fp == NULL) {
-        fprintf(stderr, "Failed to open %s\n", cleanFile);
-        exit(EXIT_FAILURE);
-    }
+//     FILE* fp = initialise(sourceFile, BUFFER_SIZE);
+//     if (fp == NULL) {
+//         fprintf(stderr, "Failed to open %s\n", cleanFile);
+//         exit(EXIT_FAILURE);
+//     }
 
-    lineCount = 1; 
-    TokenNode* head = NULL;
-    SymbolItem currToken;
-    int tokenCount =0 ;
-    while (!isEnd) {
-        currToken = getToken(fp); // Use your existing getToken function
-        if (currToken.lexeme != NULL) {
-            appendTokenNode(&head, currToken.token, currToken.lexeme, currToken.lineCount);
-            tokenCount++;
-            free(currToken.lexeme); // Assuming dynamic memory allocation for lexeme
-        }
-    }
-    appendTokenNode(&head, END_OF_INPUT, NULL, -1);
+//     lineCount = 1; 
+//     TokenNode* head = NULL;
+//     SymbolItem currToken;
+//     int tokenCount =0 ;
+//     while (!isEnd) {
+//         currToken = getToken(fp); // Use your existing getToken function
+//         if (currToken.lexeme != NULL) {
+//             appendTokenNode(&head, currToken.token, currToken.lexeme, currToken.lineCount);
+//             tokenCount++;
+//             free(currToken.lexeme); // Assuming dynamic memory allocation for lexeme
+//         }
+//     }
+//     appendTokenNode(&head, END_OF_INPUT, NULL, -1);
 
-    printTokens(head);
-    freeTokenList(head);
-    printf("Total number of tokens: %d\n", tokenCount);
+//     printTokens(head);
+//     freeTokenList(head);
+//     printf("Total number of tokens: %d\n", tokenCount);
 
-    fclose(fp); 
+//     fclose(fp); 
 
-    return 0;
-}
+//     return 0;
+// }
