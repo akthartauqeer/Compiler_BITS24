@@ -1,4 +1,4 @@
 driver.o : driver.c
-           gcc -o final driver.c
+           gcc -c driver.c
 clean: 
 	rm -rf *.o
