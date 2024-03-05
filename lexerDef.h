@@ -4,18 +4,30 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
+
 #define tablesize 10000000
-#define NTC 54
-#define TC 58
+#define NTC 52
+#define TC 59
 #define KC 28
+
+
+/*
+GROUP_NO_39
+Dhruv Kamra - 2021A7PS0713P
+Navneet Singla - 2021A7PS1450P
+Tauqeer Akthar- 2021A7PS1628P
+Archisha Mehta - 2020B3A70779P
+Saloni Bhandari - 2020B1A71602P 
+*/
+
 
 typedef enum{
     program, mainFunction, otherFunctions, function, input_par, output_par, parameter_list, dataType, 
     primitiveDatatype, constructedDatatype, A, stmts, remaining_list, typeDefinitions, typeDefinition, fieldDefinitions, 
-    fieldDefinition, dataType1, moreFields, declarations, declaration, colon_or_not, global_or_not, otherStmts, stmt, 
-    assignmentStmt, singleOrRecId, singleOrRecId1, singleOrRecId2, funCallStmt, outputParameters, inputParameters, 
-    iterativeStmt, conditionalStmt, conditionalStmt1, ioStmt, arithmeticExpression, operator_arithmetic1, arithmeticExpression1,
-    operator_arithmetic2, arithmeticExpression2, operator1, operator2, booleanExpression, not_expression, not_expression2, var, 
+    fieldDefinition, fieldtype, moreFields, declarations, declaration, global_or_not, otherStmts, stmt, 
+    assignmentStmt, singleOrRecId, option_single_constructed, oneExpansion, moreExpansions, funCallStmt, outputParameters, inputParameters, 
+    iterativeStmt, conditionalStmt, elsePart, ioStmt, arithmeticExpression, expPrime, term, 
+    termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators, booleanExpression, var, 
     logicalOp, relationalOp, returnStmt, optionalReturn, idList, more_ids, definetypestmt
 }non_terminals;
 
@@ -27,7 +39,7 @@ typedef enum{
     TK_ELSE, TK_END, TK_ENDIF, TK_ENDWHILE, TK_ENDRECORD, TK_ENDUNION, 
     TK_GLOBAL, TK_IF, TK_INPUT, TK_OUTPUT, TK_INT, TK_REAL, TK_LIST, 
     TK_PARAMETERS, TK_PARAMETER, TK_READ, TK_WRITE, TK_RECORD, TK_UNION, 
-    TK_RETURN, TK_THEN, TK_TYPE, TK_WHILE, TK_WITH
+    TK_RETURN, TK_THEN, TK_TYPE, TK_WHILE, TK_WITH, EPS, END_OF_INPUT
 }terminals;
 
 char* terms[]={
@@ -38,7 +50,17 @@ char* terms[]={
     "TK_DEFINETYPE", "TK_ELSE", "TK_END", "TK_ENDIF", "TK_ENDWHILE", "TK_ENDRECORD", 
     "TK_ENDUNION", "TK_GLOBAL", "TK_IF", "TK_INPUT", "TK_OUTPUT", "TK_INT", "TK_REAL", 
     "TK_LIST", "TK_PARAMETERS", "TK_PARAMETER", "TK_READ", "TK_WRITE", "TK_RECORD", 
-    "TK_UNION", "TK_RETURN", "TK_THEN", "TK_TYPE", "TK_WHILE", "TK_WITH"
+    "TK_UNION", "TK_RETURN", "TK_THEN", "TK_TYPE", "TK_WHILE", "TK_WITH", "EPS", "END_OF_INPUT"
+};
+
+char* non_terms[]={
+    "program", "mainFunction", "otherFunctions", "function", "input_par", "output_par", "parameter_list", "dataType", 
+    "primitiveDatatype", "constructedDatatype", "A", "stmts", "remaining_list", "typeDefinitions", "typeDefinition", "fieldDefinitions", 
+    "fieldDefinition", "fieldtype", "moreFields", "declarations", "declaration", "global_or_not", "otherStmts", "stmt", 
+    "assignmentStmt", "singleOrRecId", "option_single_constructed", "oneExpansion", "moreExpansions", "funCallStmt", "outputParameters", "inputParameters", 
+    "iterativeStmt", "conditionalStmt", "elsePart", "ioStmt", "arithmeticExpression", "expPrime", "term", 
+    "termPrime", "factor", "highPrecedenceOperators", "lowPrecedenceOperators", "booleanExpression", "var", 
+    "logicalOp", "relationalOp", "returnStmt", "optionalReturn", "idList", "more_ids", "definetypestmt"
 };
 //Item of a symbol table
 typedef struct sitem {
@@ -64,8 +86,8 @@ typedef struct {
 
 //Twin Buffering
 typedef struct {
-	char firstBuf[BUFFER_SIZE];
-	char secondBuf[BUFFER_SIZE];
+	char firstBuffer[BUFFER_SIZE];
+	char secondBuffer[BUFFER_SIZE];
 } twinBuff;
 
 typedef struct keyword{
@@ -76,10 +98,22 @@ typedef struct keyword{
 keyword* keywords[KC];
 
 Symboltable * table;
+
+FILE *fp;
 char *forwardPtr, *beginPtr;
 bool firstFlag, secondFlag;
 int lineCount;
 bool isEnd;
-bool firstBufLoadable = true;
-bool secondBufLoadable = true;
+bool LoadfirstBuffer = true;
+bool LoadsecondBuffer = true;
 twinBuff twinBuffer;
+
+
+typedef struct TokenNode 
+{
+    terminals token; 
+    char* lexeme;
+    int lineNo;
+    struct TokenNode* next;
+} TokenNode;
+
