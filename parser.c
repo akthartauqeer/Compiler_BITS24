@@ -61,52 +61,52 @@ void populateitems()
     itemList[54] = createTerminal(TK_TYPE);
     itemList[55] = createTerminal(TK_WHILE);
     itemList[56] = createTerminal(TK_WITH);
-    itemList[57] = createNonTerminal(program);
-    itemList[58] = createNonTerminal(mainFunction);
-    itemList[59] = createNonTerminal(otherFunctions);
-    itemList[60] = createNonTerminal(function);
-    itemList[61] = createNonTerminal(input_par);
-    itemList[62] = createNonTerminal(output_par);
-    itemList[63] = createNonTerminal(parameter_list);
-    itemList[64] = createNonTerminal(dataType);
-    itemList[65] = createNonTerminal(primitiveDatatype);
-    itemList[66] = createNonTerminal(constructedDatatype);
-    itemList[67] = createNonTerminal(A);
-    itemList[68] = createNonTerminal(stmts);
-    itemList[69] = createNonTerminal(remaining_list);
-    itemList[70] = createNonTerminal(typeDefinitions);
-    itemList[71] = createNonTerminal(typeDefinition);
-    itemList[72] = createNonTerminal(fieldDefinitions);
-    itemList[73] = createNonTerminal(fieldDefinition);
-    itemList[74] = createNonTerminal(dataType1);
-    itemList[75] = createNonTerminal(moreFields);
-    itemList[76] = createNonTerminal(declarations);
-    itemList[77] = createNonTerminal(declaration);
-    itemList[78] = createNonTerminal(colon_or_not);
-    itemList[79] = createNonTerminal(global_or_not);
-    itemList[80] = createNonTerminal(otherStmts);
-    itemList[81] = createNonTerminal(stmt);
-    itemList[82] = createNonTerminal(assignmentStmt);
-    itemList[83] = createNonTerminal(singleOrRecId);
-    itemList[84] = createNonTerminal(singleOrRecId1);
-    itemList[85] = createNonTerminal(singleOrRecId2);
-    itemList[86] = createNonTerminal(funCallStmt);
-    itemList[87] = createNonTerminal(outputParameters);
-    itemList[88] = createNonTerminal(inputParameters);
-    itemList[89] = createNonTerminal(iterativeStmt);
-    itemList[90] = createNonTerminal(conditionalStmt);
-    itemList[91] = createNonTerminal(conditionalStmt1);
-    itemList[92] = createNonTerminal(ioStmt);
-    itemList[93] = createNonTerminal(arithmeticExpression);
-    itemList[94] = createNonTerminal(operator_arithmetic1);
-    itemList[95] = createNonTerminal(arithmeticExpression1);
-    itemList[96] = createNonTerminal(operator_arithmetic2);
-    itemList[97] = createNonTerminal(arithmeticExpression2);
-    itemList[98] = createNonTerminal(operator1);
-    itemList[99] = createNonTerminal(operator2);
-    itemList[100] = createNonTerminal(booleanExpression);
-    itemList[101] = createNonTerminal(not_expression);
-    itemList[102] = createNonTerminal(not_expression2);
+    itemList[57] = createNonTerminal(EPS);
+    itemList[58] = createNonTerminal(END_OF_INPUT);
+    itemList[59] = createNonTerminal(program);
+    itemList[60] = createNonTerminal(mainFunction);
+    itemList[61] = createNonTerminal(otherFunctions);
+    itemList[62] = createNonTerminal(function);
+    itemList[63] = createNonTerminal(input_par);
+    itemList[64] = createNonTerminal(output_par);
+    itemList[65] = createNonTerminal(parameter_list);
+    itemList[66] = createNonTerminal(dataType);
+    itemList[67] = createNonTerminal(primitiveDatatype);
+    itemList[68] = createNonTerminal(constructedDatatype);
+    itemList[69] = createNonTerminal(A);
+    itemList[70] = createNonTerminal(stmts);
+    itemList[71] = createNonTerminal(remaining_list);
+    itemList[72] = createNonTerminal(typeDefinitions);
+    itemList[73] = createNonTerminal(typeDefinition);
+    itemList[74] = createNonTerminal(fieldDefinitions);
+    itemList[75] = createNonTerminal(fieldDefinition);
+    itemList[76] = createNonTerminal(fieldtype);
+    itemList[77] = createNonTerminal(moreFields);
+    itemList[78] = createNonTerminal(declarations);
+    itemList[79] = createNonTerminal(declaration);
+    itemList[80] = createNonTerminal(global_or_not);
+    itemList[81] = createNonTerminal(otherStmts);
+    itemList[82] = createNonTerminal(stmt);
+    itemList[83] = createNonTerminal(assignmentStmt);
+    itemList[84] = createNonTerminal(singleOrRecId);
+    itemList[85] = createNonTerminal(option_single_constructed);
+    itemList[86] = createNonTerminal(oneExpansion);
+    itemList[87] = createNonTerminal(moreExpansions);
+    itemList[88] = createNonTerminal(funCallStmt);
+    itemList[89] = createNonTerminal(outputParameters);
+    itemList[90] = createNonTerminal(inputParameters);
+    itemList[91] = createNonTerminal(iterativeStmt);
+    itemList[92] = createNonTerminal(conditionalStmt);
+    itemList[93] = createNonTerminal(elsePart);
+    itemList[94] = createNonTerminal(ioStmt);
+    itemList[95] = createNonTerminal(arithmeticExpression);
+    itemList[96] = createNonTerminal(expPrime);
+    itemList[97] = createNonTerminal(term);
+    itemList[98] = createNonTerminal(termPrime);
+    itemList[99] = createNonTerminal(factor);
+    itemList[100] = createNonTerminal(highPrecedenceOperators);
+    itemList[101] = createNonTerminal(lowPrecedenceOperators);
+    itemList[102] = createNonTerminal(booleanExpression);
     itemList[103] = createNonTerminal(var);
     itemList[104] = createNonTerminal(logicalOp);
     itemList[105] = createNonTerminal(relationalOp);
@@ -117,52 +117,52 @@ void populateitems()
     itemList[110] = createNonTerminal(definetypestmt);
 }
 
-void addRule(int index, non_terminals nt, int size,gitems value[]) {
+void addRule(int index, non_terminals nt, int size, gitems *value)
+{
     LHSNode *lhsNode;
-    
-    G=(Grammar *)malloc(sizeof(Grammar));
-    for(int i=0;i<NTC;i++){
-        G->rules[i]=NULL;
+    if (G->rules[index - 1] == NULL)
+    {
+        lhsNode = (LHSNode *)malloc(sizeof(LHSNode));
+        lhsNode->rules = NULL;
+        lhsNode->lhs = nt;
     }
-    if(G->rules[index-1]==NULL){
-    lhsNode = (LHSNode*)malloc(sizeof(LHSNode));
-    lhsNode->rules=NULL;
-    lhsNode->lhs = nt;
-    }
-    ProductionRule *currentrulehead=lhsNode->rules;
-    ProductionRule *newRule = (ProductionRule*)malloc(sizeof(ProductionRule));
+    ProductionRule *currentrulehead = lhsNode->rules;
+    ProductionRule *newRule = (ProductionRule *)malloc(sizeof(ProductionRule));
     newRule->head = NULL;
     newRule->next_rule = NULL;
-    if(currentrulehead==NULL){
-        currentrulehead=newRule;
-        lhsNode->rules=newRule;
+    if (currentrulehead == NULL)
+    {
+        lhsNode->rules = newRule;
     }
-    else{
-        while(currentrulehead->next_rule!=NULL)
-        currentrulehead=currentrulehead->next_rule;
+    else
+    {
+        while (currentrulehead->next_rule != NULL)
+            currentrulehead = currentrulehead->next_rule;
     }
     // Create and add RHS nodes for the production rule
-    RHSNode* rhshead=(RHSNode *)malloc(sizeof(RHSNode));
-    RHSNode*rhsptr=rhshead;
-    rhshead->v=value[0].v;
-    rhshead->isT=value[0].isTer;
-    for(int i = 1; i < size; i++) {
+    RHSNode *rhshead = (RHSNode *)malloc(sizeof(RHSNode));
+    RHSNode *rhsptr = rhshead;
+    rhshead->v = value[0].v;
+    rhshead->isT = value[0].isTer;
+    for (int i = 1; i < size; i++)
+    {
         // Create a new RHSNode
         RHSNode *rhsNode = (RHSNode *)malloc(sizeof(RHSNode));
-        rhsNode->v=value[i].v;
-        rhsNode->isT=value[i].isTer;
-        rhsNode->next=NULL;
+        rhshead->v = value[i].v;
+        rhshead->isT = value[i].isTer;
         rhsptr->next = rhsNode;
         rhsNode->ptr = NULL; // You might need to set this depending on your needs
         // Add the RHSNode to the production rule
-        rhsptr=rhsptr->next;
+        rhsptr = rhsptr->next;
     }
+
     // Link the new production rule to the LHSNode
-    newRule->head=rhshead;
-    currentrulehead->next_rule=newRule;
+    newRule->head = rhshead;
+    currentrulehead->next_rule = newRule;
     // Add the LHSNode to the grammar
-    G->rules[index-1] = lhsNode;
+    G->rules[index] = lhsNode;
 }
+
 void addGrammarRules()
 {
     addrule(1, program, 2, {otherFunctions, mainFunction});
@@ -243,12 +243,12 @@ void addGrammarRules()
     addrule(47, var, 1, {TK_RNUM});                                               // 39a
     addrule(48, logicalOp, 1, {TK_AND});                                          // 40
     addrule(48, logicalOp, 1, {TK_OR});                                           // 40
-    addrule(49, relationOp, 1, {TK_LT});                                          // 41
-    addrule(49, relationOp, 1, {TK_LE});                                          // 41
-    addrule(49, relationOp, 1, {TK_EQ});                                          // 41
-    addrule(49, relationOp, 1, {TK_GT});                                          // 41
-    addrule(49, relationOp, 1, {TK_GE});                                          // 41
-    addrule(49, relationOp, 1, {TK_NE});                                          // 41
+    addrule(49, relationalOp, 1, {TK_LT});                                          // 41
+    addrule(49, relationalOp, 1, {TK_LE});                                          // 41
+    addrule(49, relationalOp, 1, {TK_EQ});                                          // 41
+    addrule(49, relationalOp, 1, {TK_GT});                                          // 41
+    addrule(49, relationalOp, 1, {TK_GE});                                          // 41
+    addrule(49, relationalOp, 1, {TK_NE});                                          // 41
     addrule(50, returnStmt, 3, {TK_RETURN, optionalReturn, TK_SEM});              // 42
     addrule(51, optionalReturn, 3, {TK_SQL, idList, TK_SQR});                     // 43
     addrule(51, optionalReturn, 1, {EPS});
@@ -339,189 +339,221 @@ void print_parse_table()
     }
 }
 
-void join_terminallist_exc_eps(terminal_list* list1, terminal_list* list2);
+void add_terminal_tolist(terminal_list *list, terminals t)
+{
 
-void add_terminal_tolist(terminal_list *list , terminals t){
-
-    if(list->head == NULL){
-        list->head = (terminal_node *)malloc(sizeof(terminal_node)); 
-        list->head->t = t ; 
-        list->head->next = NULL ; 
-
+    if (list->head == NULL)
+    {
+        list->head = (terminal_node *)malloc(sizeof(terminal_node));
+        list->head->t = t;
+        list->head->next = NULL;
     }
-    else{
-        terminal_node * cur = list->head; 
-        terminal_node * prev = NULL; 
+    else
+    {
+        terminal_node *cur = list->head;
+        terminal_node *prev = NULL;
 
-        while(cur!=NULL){
-            if(cur->t ==t){
-                return ; 
+        while (cur != NULL)
+        {
+            if (cur->t == t)
+            {
+                return;
             }
 
-            prev = cur ; 
-            cur = cur->next ; 
+            prev = cur;
+            cur = cur->next;
         }
 
-        terminal_node * newnode = (terminal_node *)malloc(sizeof(terminal_node)); 
+        terminal_node *newnode = (terminal_node *)malloc(sizeof(terminal_node));
 
-        newnode->t = t ; 
-        newnode->next = NULL ; 
+        newnode->t = t;
+        newnode->next = NULL;
 
-        if(prev !=NULL){
-            prev->next = newnode; 
+        if (prev != NULL)
+        {
+            prev->next = newnode;
         }
     }
 }
 
-void join_terminal_list(terminal_list * l1 , terminal_list* l2){
-    if(l2 == NULL || l2->head == NULL){
-        return ; 
+void join_terminal_list(terminal_list *l1, terminal_list *l2)
+{
+    if (l1 == NULL || l2 == NULL || l2->head == NULL)
+    {
+        return;
     }
 
-    terminal_node * cur = l2->head ; 
+    terminal_node *cur = l2->head;
 
-    while(cur!=NULL){
-        terminal_node* search = l1->head ; 
-        bool found = false ;
+    while (cur != NULL)
+    {
+        terminal_node *search = l1->head;
+        bool found = false;
 
-        while(search !=NULL){
-            if(search->t == cur->t){
-                found = true ; 
-                break ; 
+        while (search != NULL)
+        {
+            if (search->t == cur->t)
+            {
+                found = true;
+                break;
             }
-            search = search->next ; 
+            search = search->next;
         }
 
-        if(!found){
-            terminal_node * newnode = (terminal_node *)malloc(sizeof(terminal_node)); 
+        if (!found)
+        {
+            terminal_node *newnode = (terminal_node *)malloc(sizeof(terminal_node));
 
-            if(newnode==NULL){
-                fprintf(stderr , "memory allocation failed\n");
-                exit(EXIT_FAILURE);  
+            if (newnode == NULL)
+            {
+                fprintf(stderr, "memory allocation failed\n");
+                exit(EXIT_FAILURE);
             }
 
-            newnode->t = cur->t ; 
-            newnode->next = NULL ; 
+            newnode->t = cur->t;
+            newnode->next = NULL;
 
-            if(l1->head ==NULL){
-                l1->head = newnode; 
+            if (l1->head == NULL)
+            {
+                l1->head = newnode;
             }
-            else{
-                terminal_node * last = l1->head ; 
-                while(last->next!=NULL){
-                    last = last->next; 
+            else
+            {
+                terminal_node *last = l1->head;
+                while (last->next != NULL)
+                {
+                    last = last->next;
                 }
-                last->next = newnode; 
+                last->next = newnode;
             }
         }
 
-        cur = cur->next; 
+        cur = cur->next;
     }
 }
 
-void initialise_list(terminal_list* list){
+void initialise_list(terminal_list *list)
+{
 
-    if(list != NULL){
-        list->head = NULL ; 
+    if (list != NULL)
+    {
+        list->head = NULL;
     }
 }
 
-bool contains_epsilon(terminal_list * given_list){
-    terminal_node * temp = given_list->head ; 
+bool contains_epsilon(terminal_list *given_list)
+{
+    terminal_node *temp = given_list->head;
 
-    while(temp!=NULL){
-        if(temp->t == EPS){
-            return true; 
+    while (temp != NULL)
+    {
+        if (temp->t == EPS)
+        {
+            return true;
         }
 
-        temp = temp->next ; 
+        temp = temp->next;
     }
 
-    return false; 
+    return false;
 }
 
-void remove_epsilon(terminal_list * given_list){
-    terminal_node * temp = given_list->head ; 
-    terminal_node * prev = NULL;
-    if(temp!=NULL && temp->t==EPS){
-        given_list->head=temp->next;
+void remove_epsilon(terminal_list *given_list)
+{
+    terminal_node *temp = given_list->head;
+    terminal_node *prev = NULL;
+    if (temp != NULL && temp->t == EPS)
+    {
+        given_list->head = temp->next;
         free(temp);
         return;
     }
-    while((temp!=NULL) && (temp->next->t != EPS)){
+    while ((temp != NULL) && (temp->next->t != EPS))
+    {
         prev = temp;
-        temp = temp->next ; 
+        temp = temp->next;
     }
-    if(temp=NULL) return;
+    if (temp = NULL)
+        return;
     prev->next = temp->next;
     free(temp);
-    return; 
+    return;
 }
 
-void compute_first(non_terminals given_nt){
+void compute_first(non_terminals given_nt)
+{
 
-    if(first_follow_sets[given_nt].first_set == NULL){
-        first_follow_sets[given_nt].first_set = (terminal_list*)malloc(sizeof(terminal_list)); 
-        initialise_list(first_follow_sets[given_nt].first_set); 
+    if (first_follow_sets[given_nt].first_set == NULL)
+    {
+        first_follow_sets[given_nt].first_set = (terminal_list *)malloc(sizeof(terminal_list));
+        initialise_list(first_follow_sets[given_nt].first_set);
     }
     ////
-    else if(first_follow_sets[given_nt].first_set->head !=NULL){
-        return; 
+    else if (first_follow_sets[given_nt].first_set->head != NULL)
+    {
+        return;
     }
 
-    LHSNode * lhs = G->rules[given_nt]; 
-    for(ProductionRule *rule = lhs->rules ; rule !=NULL ; rule = rule->next_rule){
-        compute_first_for_rhsnode(rule->head , first_follow_sets[given_nt].first_set); 
+    LHSNode *lhs = G->rules[given_nt];
+    for (ProductionRule *rule = lhs->rules; rule != NULL; rule = rule->next_rule)
+    {
+        compute_first_for_rhsnode(rule->head, first_follow_sets[given_nt].first_set);
     }
 }
 
-terminal_list* compute_first_for_rhsnode(RHSNode* rhs , terminal_list* firstset){
+terminal_list *compute_first_for_rhsnode(RHSNode *rhs, terminal_list *firstset)
+{
 
-    if(rhs ==NULL){
+    if (rhs == NULL)
+    {
         return firstset;
     }
 
-    if(rhs->isT){
-        add_terminal_tolist(firstset , rhs->v.t); 
+    if (rhs->isT)
+    {
+        add_terminal_tolist(firstset, rhs->v.t);
     }
-    else{
-        compute_first(rhs->v.non_t); 
-        join_terminal_list(firstset , first_follow_sets[rhs->v.non_t].first_set); 
+    else
+    {
+        compute_first(rhs->v.non_t);
+        join_terminal_list(firstset, first_follow_sets[rhs->v.non_t].first_set);
 
-        if(contains_epsilon(first_follow_sets[rhs->v.non_t].first_set)&& rhs->next !=NULL){ 
+        if (contains_epsilon(first_follow_sets[rhs->v.non_t].first_set) && rhs->next != NULL)
+        {
             remove_epsilon(first_follow_sets[rhs->v.non_t].first_set);
-            join_terminal_list(firstset , compute_first_for_rhsnode(rhs->next , firstset)); 
+            join_terminal_list(firstset, compute_first_for_rhsnode(rhs->next, firstset));
         }
     }
     return firstset;
 }
 
-void compute_firsts(){
-    for(int i =0 ; i<NTC ; i++){
-        compute_first(i); 
+void compute_firsts()
+{
+    for (int i = 0; i < NTC; i++)
+    {
+        compute_first(i);
     }
 }
 
 void populate_occ_follow()
 
 {
-    for (int i = 0; i<NTC; i++)
+    for (int i = 0; i < NTC; i++)
     {
-        LHSNode* lhsNode = G->rules[i];
-        ProductionRule* rule = lhsNode->rules;
+        LHSNode *lhsNode = G->rules[i];
+        ProductionRule *rule = lhsNode->rules;
 
-
-        while(rule)
+        while (rule)
         {
-            RHSNode* rhs = rule->head;
+            RHSNode *rhs = rule->head;
 
             while (rhs)
             {
-                if(!rhs->isT && rhs->v.non_t != lhsNode->lhs)
+                if (!rhs->isT && rhs->v.non_t != lhsNode->lhs)
                 {
-                    followDS* newFollow = (followDS*)malloc(sizeof(followDS));
+                    followDS *newFollow = (followDS *)malloc(sizeof(followDS));
 
-                    if(newFollow)
+                    if (newFollow)
                     {
                         newFollow->occurrence = rhs;
                         newFollow->parent_nt = lhsNode->lhs;
@@ -531,20 +563,20 @@ void populate_occ_follow()
                 }
                 rhs = rhs->next;
             }
-            rule = rule->next_rule;   
+            rule = rule->next_rule;
         }
     }
 }
 
 void find_followset(non_terminals nt)
 {
-    if(first_follow_sets[nt].follow_set == NULL)
+    if (first_follow_sets[nt].follow_set == NULL)
     {
-        first_follow_sets[nt].follow_set = (terminal_list*)malloc(sizeof(terminal_list));
+        first_follow_sets[nt].follow_set = (terminal_list *)malloc(sizeof(terminal_list));
         initialise_list(first_follow_sets[nt].follow_set);
     }
 
-    else if (first_follow_sets[nt].follow_set-> head != NULL)
+    else if (first_follow_sets[nt].follow_set->head != NULL)
     {
         return;
     }
@@ -552,33 +584,31 @@ void find_followset(non_terminals nt)
     if (nt == program)
     {
         add_terminal_tolist(first_follow_sets[nt].follow_set, END_OF_INPUT);
-    }    
+    }
 
-    followDS* followNode = follow_occurrence[nt];
+    followDS *followNode = follow_occurrence[nt];
 
     while (followNode)
     {
-        RHSNode* occurence = followNode->occurrence;
-        RHSNode* nextSymbol = occurence->next;
+        RHSNode *occurence = followNode->occurrence;
+        RHSNode *nextSymbol = occurence->next;
 
-        if(nextSymbol)
+        if (nextSymbol)
         {
-            if(nextSymbol->isT)
+            if (nextSymbol->isT)
             {
-                add_terminal_tolist(first_follow_sets[nt].follow_set, nextSymbol->value.t);
+                add_terminal_tolist(first_follow_sets[nt].follow_set, nextSymbol->v.t);
             }
             else
             {
-                terminal_list* firstsetOfNext = first_follow_sets[nextSymbol->value.non_t].first_set;
+                terminal_list *firstsetOfNext = first_follow_sets[nextSymbol->v.non_t].first_set;
                 join_terminallist_exc_eps(first_follow_sets[nt].follow_set, firstsetOfNext);
 
                 if (contains_epsilon(firstsetOfNext))
                 {
                     join_terminal_list(first_follow_sets[nt].follow_set, first_follow_sets[followNode->parent_nt].follow_set);
                 }
-                
             }
-            
         }
 
         else
@@ -587,33 +617,69 @@ void find_followset(non_terminals nt)
         }
 
         followNode = followNode->next;
-
     }
 }
 
-void join_terminallist_exc_eps(terminal_list* list1, terminal_list* list2)
+void join_terminallist_exc_eps(terminal_list *l1, terminal_list *l2)
 {
-    if(list1 == NULL || list2 == NULL || list2->head == NULL)
+    if (l1 == NULL || l2 == NULL || l2->head == NULL)
     {
         return;
     }
 
-    terminal_node* curr = list2->head;
-    while(curr)
+    terminal_node *cur = l2->head;
+
+    while (cur != NULL)
     {
-        if(curr->t != EPS)
+        terminal_node *search = l1->head;
+        bool found = false;
+
+        while (search != NULL)
         {
-            add_terminal_tolist(list1, curr->t);
+            if ((search->t == cur->t) && (search->t != EPS))
+            {
+                found = true;
+                break;
+            }
+            search = search->next;
         }
-        curr = curr->next;
+
+        if (!found)
+        {
+            terminal_node *newnode = (terminal_node *)malloc(sizeof(terminal_node));
+
+            if (newnode == NULL)
+            {
+                fprintf(stderr, "memory allocation failed\n");
+                exit(EXIT_FAILURE);
+            }
+
+            newnode->t = cur->t;
+            newnode->next = NULL;
+
+            if (l1->head == NULL)
+            {
+                l1->head = newnode;
+            }
+            else
+            {
+                terminal_node *last = l1->head;
+                while (last->next != NULL)
+                {
+                    last = last->next;
+                }
+                last->next = newnode;
+            }
+        }
+        cur = cur->next;
     }
 }
 
 void compute_follow()
 {
-    if(first_follow_sets[program].follow_set == NULL)
+    if (first_follow_sets[program].follow_set == NULL)
     {
-        first_follow_sets[program].follow_set = (terminal_list*)malloc(sizeof(terminal_list));
+        first_follow_sets[program].follow_set = (terminal_list *)malloc(sizeof(terminal_list));
         initialise_list(first_follow_sets[program].follow_set);
     }
 
@@ -621,103 +687,57 @@ void compute_follow()
 
     populate_occ_follow();
 
-    for (int i = 1; i <NTC ; i++)
+    for (int i = 0; i < NTC; i++)
     {
         find_followset(i);
-    }  
-    
+    }
 }
 
+int main()
+{
+    G = (Grammar *)malloc(sizeof(Grammar));
+    // Initialize rules for each non-terminal
+    for (int i = 0; i < NTC; i++)
+    {
+        G->rules[i] = (LHSNode *)malloc(sizeof(LHSNode));
+        G->rules[i]->rules = NULL;           // Assuming the rules are initialized elsewhere
+        G->rules[i]->lhs = (non_terminals)i; // Assuming non-terminals are assigned corresponding values
+    }
+    compute_firsts();
+    compute_follow();
 
-// int main() {
-//     // Initialization and grammar definition as before
-//     //  Initialize EPSILON if not already defined
-//     EPSILON = 'e';
+    // Print the computed first sets for each non-terminal
+    printf("First Sets:\n");
+    for (int i = 0; i < NTC; i++)
+    { // Assuming NTC is the count of non-terminals
+        printf("First set for non-terminal %d: ", i);
+        terminal_node *current = first_follow_sets[i].first_set->head;
+        while (current != NULL)
+        {
+            printf("%c ", current->t);
+            current = current->next;
+        }
+        printf("\n");
+    }
 
-//     // Define terminals and non-terminals
-//     enum terminals { a, b, e };
-//     enum non_terminals { S, A, B };
-
-//    G = (Grammar *)malloc(sizeof(Grammar));
-
-// // Initialize rules for each non-terminal
-// for (int i = 0; i < NTC; i++) {
-//     G->rules[i] = (LHSNode *)malloc(sizeof(LHSNode));
-//     G->rules[i]->rules = NULL; // Assuming the rules are initialized elsewhere
-//     G->rules[i]->lhs = (non_terminals)i; // Assuming non-terminals are assigned corresponding values
-// }
-
-    
-//     // Rule 1: S -> AB
-//     G->rules[S] = (LHSNode *)malloc(sizeof(LHSNode));
-//     G->rules[S]->rules = (ProductionRule *)malloc(sizeof(ProductionRule));
-//     G->rules[S]->rules->head = (RHSNode *)malloc(sizeof(RHSNode));
-//     G->rules[S]->rules->head->isT = false;
-//     G->rules[S]->rules->head->value.non_t = A;
-//     G->rules[S]->rules->head->next = (RHSNode *)malloc(sizeof(RHSNode));
-//     G->rules[S]->rules->head->next->isT = false;
-//     G->rules[S]->rules->head->next->value.non_t = B;
-//     G->rules[S]->rules->head->next->next = NULL;
-//     G->rules[S]->rules->next_rule = NULL;
-
-//     // Rule 2: A -> a | ε
-//     G->rules[A] = (LHSNode *)malloc(sizeof(LHSNode));
-//     G->rules[A]->rules = (ProductionRule *)malloc(2 * sizeof(ProductionRule));
-//     G->rules[A]->rules->head = (RHSNode *)malloc(sizeof(RHSNode));
-//     G->rules[A]->rules->head->isT = true;
-//     G->rules[A]->rules->head->value.t = 'a';
-//     G->rules[A]->rules->head->next = NULL;
-//     G->rules[A]->rules->next_rule = (ProductionRule *)malloc(sizeof(ProductionRule));
-//     G->rules[A]->rules->next_rule->head = (RHSNode *)malloc(sizeof(RHSNode));
-//     G->rules[A]->rules->next_rule->head->isT = true;
-//     G->rules[A]->rules->next_rule->head->value.t = EPSILON;
-//     G->rules[A]->rules->next_rule->head->next = NULL;
-//     G->rules[A]->rules->next_rule->next_rule = NULL;
-
-//     // Rule 3: B -> b | ε
-//     G->rules[B] = (LHSNode *)malloc(sizeof(LHSNode));
-//     G->rules[B]->rules = (ProductionRule *)malloc(2 * sizeof(ProductionRule));
-//     G->rules[B]->rules->head = (RHSNode *)malloc(sizeof(RHSNode));
-//     G->rules[B]->rules->head->isT = true;
-//     G->rules[B]->rules->head->value.t = 'b';
-//     G->rules[B]->rules->head->next = NULL;
-//     G->rules[B]->rules->next_rule = (ProductionRule *)malloc(sizeof(ProductionRule));
-//     G->rules[B]->rules->next_rule->head = (RHSNode *)malloc(sizeof(RHSNode));
-//     G->rules[B]->rules->next_rule->head->isT = true;
-//     G->rules[B]->rules->next_rule->head->value.t = EPSILON;
-//     G->rules[B]->rules->next_rule->head->next = NULL;
-//     G->rules[B]->rules->next_rule->next_rule = NULL;
-
-//     compute_firsts();
-
-//     compute_follow();
-
-//     // Print the computed first sets for each non-terminal
-//     printf("First Sets:\n");
-//     for (int i = 0; i < NTC; i++) { // Assuming NTC is the count of non-terminals
-//         printf("First set for non-terminal %d: ", i);
-//         terminal_node* current = first_follow_sets[i].first_set->head;
-//         while (current != NULL) {
-//             printf("%c ", current->t);
-//             current = current->next;
-//         }
-//         printf("\n");
-//     }
-
-//     // Print the computed follow sets for each non-terminal
-//     printf("\nFollow Sets:\n");
-// for (int i = 0; i < NTC; i++) { 
-//     printf("Follow set for non-terminal %d: ", i);
-//     terminal_node* current = first_follow_sets[i].follow_set->head;
-//     while (current != NULL) {
-//         if (current->t == END_OF_INPUT) {
-//             printf("$ ");
-//         } else {
-//             printf("%c ", current->t); 
-//         }
-//         current = current->next;
-//     }
-//     printf("\n");
-// }
-
-// }
+    // Print the computed follow sets for each non-terminal
+    printf("\nFollow Sets:\n");
+    for (int i = 0; i < NTC; i++)
+    {
+        printf("Follow set for non-terminal %d: ", i);
+        terminal_node *current = first_follow_sets[i].follow_set->head;
+        while (current != NULL)
+        {
+            if (current->t == END_OF_INPUT)
+            {
+                printf("$ ");
+            }
+            else
+            {
+                printf("%c ", current->t);
+            }
+            current = current->next;
+        }
+        printf("\n");
+    }
+}
