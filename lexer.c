@@ -1,32 +1,43 @@
 #include "lexer.h"
 #include <string.h>
 
+
+
+/*
+GROUP_NO_39
+Dhruv Kamra - 2021A7PS0713P
+Navneet Singla - 2021A7PS1450P
+Tauqeer Akthar- 2021A7PS1628P
+Archisha Mehta - 2020B3A70779P
+Saloni Bhandari - 2020B1A71602P 
+*/
+
+
 // initialising lexer
 FILE *initialise(char *inputFile, long long int buff_size)
 {
-    memset(twinBuffer.firstBuf, 0, sizeof(twinBuffer.firstBuf));
-    memset(twinBuffer.secondBuf, 0, sizeof(twinBuffer.secondBuf));
+    memset(twinBuffer.firstBuffer, 0, sizeof(twinBuffer.firstBuffer));
+    memset(twinBuffer.secondBuffer, 0, sizeof(twinBuffer.secondBuffer));
     FILE *fileptr = fopen(inputFile, "r");
     if (fileptr == NULL)
     {
         printf("ERROR! File not opened.\n");
     }
-    int size = fread(twinBuffer.firstBuf, sizeof(char), BUFFER_SIZE, fileptr);
+    int size = fread(twinBuffer.firstBuffer, sizeof(char), BUFFER_SIZE, fileptr);
     if (size < BUFFER_SIZE)
     {
-        twinBuffer.firstBuf[size] = EOF;
+        twinBuffer.firstBuffer[size] = EOF;
     }
 
-    firstBufLoadable = false;
-    secondBufLoadable = true;
-    lineCount = 0;
+    LoadfirstBuffer = false;
+    LoadsecondBuffer = true;
+    //lineCount = 0;
     isEnd = false;
-    beginPtr = twinBuffer.firstBuf;
-    forwardPtr = twinBuffer.firstBuf;
+    beginPtr = twinBuffer.firstBuffer;
+    forwardPtr = twinBuffer.firstBuffer;
     initializeSymbolTable();
     return fileptr;
 }
-
 void initializeKeywords()
 {
     keyword key[] = {
@@ -60,19 +71,23 @@ void initializeKeywords()
         {"write", TK_WRITE},
     };
 
-        for (int i = 0; i < KC; i++) {
-        keywords[i] = (keyword*)malloc(sizeof(keyword)); // Allocate memory for each keyword
-        if (keywords[i] == NULL) {
-            fprintf(stderr, "Memory allocation failed for keywords[%d].\n", i);
-            exit(EXIT_FAILURE);
-        }
-        // Copy the static keyword info into the dynamically allocated memory
-        keywords[i]->key = strdup(key[i].key);
-        keywords[i]->token = key[i].token;
+    for(int i =0 ; i<KC ; i++){
+            keywords[i]= (keyword*)malloc(sizeof(keyword)); 
+
+            if(keywords[i]==NULL){
+                fprintf(stderr , "Memory allocation failed for keywords %d\n" , i); 
+                exit(EXIT_FAILURE);
+            }
+
+            keywords[i]->key = strdup(key[i].key); 
+            keywords[i]->token = key[i].token; 
+        
     }
         
 
 }
+
+
 
 // Function to initialize SymbolTable
 void initializeSymbolTable()
@@ -90,7 +105,7 @@ void initializeSymbolTable()
     table->currentsize = 0;
     initializeKeywords();
     // Insert keywords into the symbol table
-    for (int i = 0; i < KC; i++)
+    for(int i = 0; i < KC; i++)
     {
         insert(keywords[i]->key, keywords[i]->token);
     }
@@ -178,8 +193,10 @@ bool lookup(char *lexeme)
     return false;
 }
 
+
+
 // error handling
-SymbolItem errorHandle(int err, char *lex, int line)
+SymbolItem error_helper(int error, char *lex, int line)
 {
     SymbolItem nextSymbolItem;
     nextSymbolItem.token = 0;
@@ -187,11 +204,11 @@ SymbolItem errorHandle(int err, char *lex, int line)
     nextSymbolItem.iVal = 0;
     nextSymbolItem.fVal = 0.00;
     nextSymbolItem.lineCount = line;
-    if (err == -2)
+    if (error == -2)
         printf("Identified lexical error at line %d. Type: Unknown character %s\n", line, lex);
-    else if (err == -3)
+    else if (error == -3)
         printf("Identified lexical error at line %d. Type: Length of variable identifier more than 20 in %s\n", line, lex);
-    else if (err == -4)
+    else if (error == -4)
         printf("Identified lexical error at line %d. Type: Length of function identifier more than 30 in %s\n", line, lex);
     else
         printf("Identified lexical error at line %d. Type: Wrong sequence of characters in %s\n", line, getLexeme());
@@ -199,80 +216,91 @@ SymbolItem errorHandle(int err, char *lex, int line)
     return nextSymbolItem;
 }
 
-char *getLexeme() {
-    int lexemeLength;
-    char *lexeme;
 
-    // Determine if the lexeme is within the first buffer, the second buffer, or spans across both.
-    if ((beginPtr >= twinBuffer.firstBuf && beginPtr < twinBuffer.firstBuf + BUFFER_SIZE) &&
-        (forwardPtr >= twinBuffer.firstBuf && forwardPtr <= twinBuffer.firstBuf + BUFFER_SIZE)) {
-        // Both pointers are within the first buffer.
-        lexemeLength = forwardPtr - beginPtr;
-    } else if ((beginPtr >= twinBuffer.secondBuf && beginPtr < twinBuffer.secondBuf + BUFFER_SIZE) &&
-               (forwardPtr >= twinBuffer.secondBuf && forwardPtr <= twinBuffer.secondBuf + BUFFER_SIZE)) {
-        // Both pointers are within the second buffer.
-        lexemeLength = forwardPtr - beginPtr;
-    } else {
-        // The lexeme spans across buffers.
-        lexemeLength = (twinBuffer.firstBuf + BUFFER_SIZE - beginPtr) + (forwardPtr - twinBuffer.secondBuf);
+char *getLexeme(){
+    int length_lexeme; 
+    char *lexeme; 
+
+    
+
+    if((beginPtr>= twinBuffer.firstBuffer && beginPtr< twinBuffer.firstBuffer + BUFFER_SIZE) 
+      && (forwardPtr>=twinBuffer.firstBuffer && forwardPtr<=twinBuffer.firstBuffer + BUFFER_SIZE)){
+
+        length_lexeme = forwardPtr - beginPtr; 
     }
 
-    // Allocate memory for the lexeme, including space for the null terminator.
-    lexeme = (char *)malloc((lexemeLength + 1) * sizeof(char));
-    if (!lexeme) {
-        fprintf(stderr, "Memory allocation failed for lexeme.\n");
-        exit(EXIT_FAILURE);
+    else if((beginPtr>=twinBuffer.secondBuffer && beginPtr < twinBuffer.secondBuffer + BUFFER_SIZE)&& 
+        (forwardPtr>=twinBuffer.secondBuffer && forwardPtr <=twinBuffer.secondBuffer+ BUFFER_SIZE)){
+
+        length_lexeme = forwardPtr - beginPtr ; 
+    }
+    else{
+        length_lexeme = twinBuffer.firstBuffer + BUFFER_SIZE - beginPtr + forwardPtr - twinBuffer.secondBuffer ; 
     }
 
-    if ((beginPtr >= twinBuffer.firstBuf && beginPtr < twinBuffer.firstBuf + BUFFER_SIZE) &&
-        (forwardPtr >= twinBuffer.firstBuf && forwardPtr <= twinBuffer.firstBuf + BUFFER_SIZE)) {
-        // Copy lexeme from the first buffer.
-        strncpy(lexeme, beginPtr, lexemeLength);
-    } else if ((beginPtr >= twinBuffer.secondBuf && beginPtr < twinBuffer.secondBuf + BUFFER_SIZE) &&
-               (forwardPtr >= twinBuffer.secondBuf && forwardPtr <= twinBuffer.secondBuf + BUFFER_SIZE)) {
-        // Copy lexeme from the second buffer.
-        strncpy(lexeme, beginPtr, lexemeLength);
-    } else {
-        // Copy lexeme spanning across buffers: part from the end of the first buffer and part from the start of the second buffer.
-        int firstPartLength = twinBuffer.firstBuf + BUFFER_SIZE - beginPtr;
-        strncpy(lexeme, beginPtr, firstPartLength);
-        strncpy(lexeme + firstPartLength, twinBuffer.secondBuf, lexemeLength - firstPartLength);
+
+     lexeme = (char*)malloc((length_lexeme+1)*sizeof(char));
+
+
+    if(!lexeme){
+        fprintf(stderr , "Mem allocation failed"); 
+        exit(EXIT_FAILURE); 
     }
 
-    lexeme[lexemeLength] = '\0'; // Null-terminate the lexeme string.
-    return lexeme;
+    if((beginPtr>=twinBuffer.firstBuffer && beginPtr<twinBuffer.firstBuffer + BUFFER_SIZE) && 
+    (forwardPtr >=twinBuffer.firstBuffer && forwardPtr<=twinBuffer.firstBuffer + BUFFER_SIZE)){
+
+        strncpy(lexeme, beginPtr , length_lexeme); 
+    }
+
+    else if((beginPtr >=twinBuffer.secondBuffer && beginPtr < twinBuffer.secondBuffer + BUFFER_SIZE) && 
+    (forwardPtr>=twinBuffer.secondBuffer && forwardPtr <= twinBuffer.secondBuffer + BUFFER_SIZE)){
+        strncpy(lexeme , beginPtr , length_lexeme); 
+
+    }
+    else{
+
+        int firstPartLength  = twinBuffer.firstBuffer + BUFFER_SIZE - beginPtr ; 
+        strncpy(lexeme , beginPtr , firstPartLength); 
+        strncpy(lexeme + firstPartLength ,twinBuffer.secondBuffer , length_lexeme-firstPartLength); 
+    }
+
+    lexeme[length_lexeme] = '\0'; 
+
+    return lexeme ; 
 }
+
 
 FILE *getstream(FILE *fp)
 {
     // If the buffer is completed, load character stream to next buffer from file
-    if (forwardPtr == twinBuffer.firstBuf + BUFFER_SIZE - 1)
+    if (forwardPtr == twinBuffer.firstBuffer + BUFFER_SIZE - 1)
     {
-        if (secondBufLoadable)
+        if (LoadsecondBuffer)
         {
-            size_t size = fread(twinBuffer.secondBuf, sizeof(char), BUFFER_SIZE, fp);
+            size_t size = fread(twinBuffer.secondBuffer, sizeof(char), BUFFER_SIZE, fp);
             if (size < BUFFER_SIZE)
             {
-                twinBuffer.secondBuf[size] = EOF;
+                twinBuffer.secondBuffer[size] = EOF;
             }
         }
-        firstBufLoadable = true;
-        forwardPtr = twinBuffer.secondBuf;
-        secondBufLoadable = false;
+        LoadfirstBuffer = true;
+        forwardPtr = twinBuffer.secondBuffer;
+        LoadsecondBuffer = false;
     }
-    else if (forwardPtr == twinBuffer.secondBuf + BUFFER_SIZE - 1)
+    else if (forwardPtr == twinBuffer.secondBuffer + BUFFER_SIZE - 1)
     {
-        if (firstBufLoadable)
+        if (LoadfirstBuffer)
         {
-            size_t size = fread(twinBuffer.firstBuf, sizeof(char), BUFFER_SIZE, fp);
+            size_t size = fread(twinBuffer.firstBuffer, sizeof(char), BUFFER_SIZE, fp);
             if (size < BUFFER_SIZE)
             {
-                twinBuffer.firstBuf[size] = EOF;
+                twinBuffer.firstBuffer[size] = EOF;
             }
         }
-        secondBufLoadable = true;
-        forwardPtr = twinBuffer.firstBuf;
-        firstBufLoadable = false;
+        LoadsecondBuffer = true;
+        forwardPtr = twinBuffer.firstBuffer;
+        LoadfirstBuffer = false;
     }
     else
     {
@@ -281,48 +309,53 @@ FILE *getstream(FILE *fp)
     return fp;
 }
 
-void removeComments(char *testFile, char *cleanFile) {
-    FILE *test = fopen(testFile, "r");
-    FILE *clean = fopen(cleanFile, "w");
+void removeComments(char *testFile , char *cleanFile){
+    FILE *test = fopen(testFile ,"r"); 
+    FILE *clean = fopen(cleanFile , "w"); 
 
-    if (!test || !clean) {
-        printf("File opening failed!\n");
-        return;
+    if(!test || !clean){
+        printf("FILE OPENING FAILED"); 
+        return ; 
     }
-    
 
-    char c;
-    bool isComment = false;
-    while ((c = fgetc(test)) != EOF) {
-        // Detect comment start and switch to comment mode
-        if (c == '%') {
-            isComment = true;
+    char c; 
+
+    bool isComment = false; 
+
+    while((c=fgetc(test))!=EOF){
+
+        if(c=='%'){
+            isComment = true; 
         }
 
-        // Check if the current character is the end of a line
-        if (c == '\n') {
-            // If it was a comment line, ensure a newline is written to keep line numbers consistent
-            if (isComment) {
-                fputc('\n', clean);
-                isComment = false; // Reset comment flag for the next line
-            } else {
-                // If it wasn't a comment, write the newline character as usual
-                fputc(c, clean);
+        if(c=='\n'){
+
+            if(isComment){
+                fputc('\n', clean); 
+                isComment = false; 
             }
-        } else if (!isComment) {
-            // If not in comment mode, write the character to the output file
-            fputc(c, clean);
+
+            else{
+                fputc(c, clean); 
+            }
+
+        }
+        else if(!isComment){
+            fputc(c, clean); 
         }
 
-        // If the end of the file is reached while still in comment mode, ensure a newline is written
-        if (isComment && c == EOF) {
-            fputc('\n', clean);
+        if(isComment && c==EOF){
+
+            fputc('\n' , clean); 
         }
+
+
     }
 
-    fclose(test);
-    fclose(clean);
+    fclose(test); 
+    fclose(clean); 
 }
+
 
 // DFA Handle....
 char getNextCharacter(FILE *fp)
@@ -333,6 +366,7 @@ char getNextCharacter(FILE *fp)
         isEnd = true;
     }
     getstream(fp);
+
     return ch;
 }
 
@@ -348,6 +382,7 @@ terminals findKeyword(char *lexeme)
     }
     return -1;
 }
+
 // tokenize
 SymbolItem tokenize(char *lex, terminals g, int line)
 {
@@ -374,27 +409,26 @@ SymbolItem tokenize(char *lex, terminals g, int line)
     case TK_ID:
         if (strlen(nextSymbolItem.lexeme) > 20)
         {
-            return errorHandle(-3, lex, line);
+            return error_helper(-3, lex, line);
         }
         break;
     case TK_FUNID:
         if (strlen(nextSymbolItem.lexeme) > 30)
         {
-            return errorHandle(-4, lex, line);
+            return error_helper(-4, lex, line);
         }
         break;
     }
     beginPtr = forwardPtr;
     return nextSymbolItem;
-}
 
+}
 SymbolItem getToken(FILE *fp)
 {
     beginPtr = forwardPtr;
     char ch = getNextCharacter(fp);
     int dfastate = 0;
     SymbolItem newSymbolItem;
-    //int lineCount;
 
     while (dfastate >= 0)
     {
@@ -476,7 +510,18 @@ SymbolItem getToken(FILE *fp)
                 //dfastate = 42;
                 break;
             case '%':
-                dfastate = 56;
+                 do {
+        ch = getNextCharacter(fp);
+    } while (ch != '\n' && ch != EOF);
+              
+    
+                // while((ch==getNextCharacter(fp))!='\n' && ch!=EOF){
+
+
+                // }
+                forwardPtr--; 
+                return tokenize("%" , TK_COMMENT , lineCount); 
+               // dfastate = 56;
                 break;
             case '_':
                 dfastate = 7;
@@ -588,7 +633,12 @@ SymbolItem getToken(FILE *fp)
 
         case 6:
         forwardPtr--;
+            if (strcmp(getLexeme(), "|") == 0) {
+              dfastate = -2;
+                  }
+            else{
             return tokenize(getLexeme(), TK_FIELDID, lineCount);
+            }
             break;
         case 7:
             ch = getNextCharacter(fp);
@@ -713,7 +763,8 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 17;
             }
             else
-            {
+            {   
+                forwardPtr--; 
                 dfastate = -5;
             }
             break;
@@ -726,7 +777,7 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 18;
             }
             else
-            {
+            {   
                 dfastate = 23;
             }
             break;
@@ -769,7 +820,8 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 21;
             }
             else
-            {
+            {   
+            
                 dfastate = -5;
             }
             break;
@@ -858,7 +910,8 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 36;
             }
             else
-            {
+            {   
+                forwardPtr--; 
                 dfastate = -5;
             }
             break;
@@ -922,7 +975,8 @@ SymbolItem getToken(FILE *fp)
                 dfastate = 44;
             }
             else
-            {
+            {   
+                forwardPtr--; 
                 dfastate = -5;
             }
             break;
@@ -960,11 +1014,14 @@ SymbolItem getToken(FILE *fp)
             }
             else if (ch == '=')
             {
-                dfastate = 49;
+                return tokenize("<=", TK_LE, lineCount);
+                //dfastate = 49;
             }
             else
-            {
-                dfastate = 48;
+            {    
+                 forwardPtr-- ; 
+                 return tokenize("<", TK_LT, lineCount); 
+                //dfastate = 48;
             }
             break;
 
@@ -1051,13 +1108,14 @@ SymbolItem getToken(FILE *fp)
             break;
         }
         if (dfastate == -2)
+        
         {
-            return errorHandle(-2, getLexeme(), lineCount);
+            return error_helper(-2, getLexeme(), lineCount);
         }
 
         if (dfastate == -5)
         {
-            return errorHandle(-5, getLexeme(), lineCount);
+            return error_helper(-5, getLexeme(), lineCount);
         }
     }
     newSymbolItem.lexeme = NULL;
@@ -1068,6 +1126,63 @@ SymbolItem getToken(FILE *fp)
     return newSymbolItem;
 }
 
+
+TokenNode* createTokenNode(terminals token, char* lexeme, int lineNo)
+{
+    TokenNode* node = (TokenNode*)malloc(sizeof(TokenNode));
+    if(!node)
+    {
+    printf("Memory allocation error\n");
+    exit(EXIT_FAILURE);
+    }
+
+    node-> token = token;
+    node-> lexeme = strdup(lexeme);
+    node-> lineNo = lineNo;
+    node-> next = NULL;
+    return node;
+}
+
+void appendTokenNode(TokenNode** head, terminals token, char* lexeme, int lineNo)
+{
+    TokenNode* newNode = createTokenNode(token, lexeme, lineNo);
+    if(*head == NULL)
+    {
+        *head = newNode;
+    }
+    else
+    {
+        TokenNode* temp = *head; 
+        while(temp->next != NULL)
+        {
+            temp = temp->next; 
+        }
+        temp->next = newNode;
+    }
+}
+
+
+void printTokens(TokenNode *head){
+    TokenNode * current = head ; 
+    while(current !=NULL){
+        printf("LineNo: %d , Token: %s , Lexeme: %s\n", current->lineNo , terms[current->token] , current->lexeme); 
+        current = current->next; 
+    }
+}
+
+void freeTokenList(TokenNode *head){
+    TokenNode *temp ; 
+    while(head!=NULL){
+        temp = head ; 
+        head = head->next ; 
+        free(temp->lexeme); 
+        free(temp);
+    }
+}
+
+
+
+
 // int main(void) {
 //     char *sourceFile = "test1.txt";
 //     char *cleanFile = "cleaned.txt";
@@ -1076,7 +1191,7 @@ SymbolItem getToken(FILE *fp)
 //     removeComments(sourceFile, cleanFile);
 
 //     // Initialize the lexer with the cleaned file
-//     FILE *fp = initialise(cleanFile, BUFFER_SIZE);
+//     FILE *fp = initialise(sourceFile, BUFFER_SIZE);
 //     if (!fp) {
 //         fprintf(stderr, "Failed to initialize lexer with file: %s\n", cleanFile);
 //         return 1;
@@ -1090,7 +1205,7 @@ SymbolItem getToken(FILE *fp)
 
 //         // Check if a valid token is fetched
 //         if (currToken.lexeme != NULL) {
-//             printf("Token: %s, Lexeme: %s\n", terms[currToken.token], currToken.lexeme);
+//             printf("LineNo: %d , Token: %s, Lexeme: %s\n",currToken.lineCount,  terms[currToken.token], currToken.lexeme);
 //             tokenCount++;
 
 //             // Assuming dynamic memory allocation for lexeme, it should be freed after use
@@ -1105,3 +1220,38 @@ SymbolItem getToken(FILE *fp)
 
 //     return 0;
 // }
+
+int main(void) {
+    char* sourceFile = "test1.txt";
+    char* cleanFile = "cleaned.txt";
+
+    removeComments(sourceFile, cleanFile);
+
+    FILE* fp = initialise(sourceFile, BUFFER_SIZE);
+    if (fp == NULL) {
+        fprintf(stderr, "Failed to open %s\n", cleanFile);
+        exit(EXIT_FAILURE);
+    }
+
+    lineCount = 1; 
+    TokenNode* head = NULL;
+    SymbolItem currToken;
+    int tokenCount =0 ;
+    while (!isEnd) {
+        currToken = getToken(fp); // Use your existing getToken function
+        if (currToken.lexeme != NULL) {
+            appendTokenNode(&head, currToken.token, currToken.lexeme, currToken.lineCount);
+            tokenCount++;
+            free(currToken.lexeme); // Assuming dynamic memory allocation for lexeme
+        }
+    }
+    appendTokenNode(&head, END_OF_INPUT, NULL, -1);
+
+    printTokens(head);
+    freeTokenList(head);
+    printf("Total number of tokens: %d\n", tokenCount);
+
+    fclose(fp); 
+
+    return 0;
+}
