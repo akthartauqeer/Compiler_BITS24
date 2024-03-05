@@ -780,7 +780,25 @@ void compute_follow()
 }
 
 bool createParseTree(SymbolItem *head)
-{
+{     
+
+    void appendTokenNode(TreeNode** head, terminals token, char* lexeme, int lineNo)
+    {
+    TreeNode* newNode = createTokenNode(token, lexeme, lineNo);
+    if(*head == NULL)
+    {
+        *head = newNode;
+    }
+    else
+    {
+        TokenNode* temp = *head; 
+        while(temp->next != NULL)
+        {
+            temp = temp->next; 
+        }
+        temp->next = newNode;
+    }
+}
     StackNode *startNode = (StackNode *)malloc(sizeof(StackNode));
     if (startNode == NULL)
     {
