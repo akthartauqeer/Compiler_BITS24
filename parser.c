@@ -48,6 +48,7 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
     newRule->head=rhshead;
     if(currentrulehead==NULL){
         currentrulehead=newRule;
+        lhsNode->rules=newRule;
     }
     else{
     currentrulehead->next_rule=newRule;
