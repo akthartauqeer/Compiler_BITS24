@@ -185,7 +185,15 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
     gitems v43[2] = {{true, TK_ID}, {false,option_single_constructed}};
     addrule(26,singleOrRecId, 2, v43);
 
-    gitems v44[2] = {{true,TK_DOT}, {false,option_single_constructed}};
+    
+    gitems v92[2] = {{false,oneExpansion}, {false,moreExpansions}};
+    addrule(27,option_single_constructed, 4, v92);
+
+    gitems v93[1] = {{true, EPS}};
+    addrule(27,option_single_constructed, 2, v93);
+
+
+    gitems v44[2] = {{true,TK_DOT}, {true, TK_FIELDID}};
     addrule(28,oneExpansion,2,v44);
 
     gitems v45[2] = {{false,oneExpansion}, {false,moreExpansions}};
@@ -194,8 +202,11 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
     gitems v46[1] = {{true,EPS}};
     addrule(29,moreExpansions,1,v46);
 
-    gitems v47[7] ={{true,TK_SQL}, {false,idList},{true, TK_SQR}, {true,TK_ASSIGNOP},{true,EPS}};
-    addrule(31, outputParameters, 4,v47);
+    gitems v47[5] ={{true,TK_SQL}, {false,idList},{true, TK_SQR}, {true,TK_ASSIGNOP},{true,EPS}};
+    addrule(31, outputParameters, 5,v47);
+
+    gitems v95[1] ={{true,EPS}};
+    addrule(31, outputParameters, 1,v95);
 
     gitems v48[3] = {{true, TK_SQL}, {false, idList}, {true, TK_SQR}};
     addrule(32, inputParameters, 3, v48);
@@ -212,10 +223,9 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
     gitems v52[1] = {{true, TK_ENDIF}};
     addrule(35,elsePart, 1 ,v52);
 
-    gitems v53[5] = {{true, TK_WRITE}, {true,TK_OP}, {false,var}, {true,TK_CL}, {true, TK_SEM}};
-    addrule(36, ioStmt, 5, v53);
 
-    gitems v54[5] = {{true, TK_WRITE}, {true,TK_OP}, {false,var}, {true, TK_CL}, {true, TK_SEM}};
+
+    gitems v54[5] = {{true, TK_READ}, {true,TK_OP}, {false,var}, {true, TK_CL}, {true, TK_SEM}};
     addrule(36,ioStmt,5,v54);
 
     gitems v55[2] ={{false, term}, {false, expPrime}};
@@ -299,8 +309,8 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
     gitems v81[3] = {{true, TK_RETURN}, {false, optionalReturn}, {true, TK_SEM}};
     addrule(48, returnStmt, 3, v81);
 
-    gitems v82[4] = {{true, TK_SQL}, {false, idList}, {true, TK_SQR}, {true, TK_ASSIGNOP}};
-    addrule(49, optionalReturn, 4, v82);
+    gitems v82[3] = {{true, TK_SQL}, {false, idList}, {true, TK_SQR}};
+    addrule(49, optionalReturn, 3, v82);
 
     gitems v83[1] = {{true, EPS}};
     addrule(49, optionalReturn, 1, v83);
@@ -314,7 +324,7 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
     gitems  v86[1] = {{true, EPS}};
     addrule(51, more_ids, 1, v86);
 
-    gitems v87[5] = {{true, TK_DEFINETYPE}, {false, A}, {true, TK_AS}, {true, TK_RUID}};
+    gitems v87[5] = {{true, TK_DEFINETYPE}, {false, A}, {true, TK_RUID}, {true, TK_AS}, {true, TK_RUID}};
     addrule(52,definetypestmt, 5, v87);
 
     gitems v88[1] = {{true, TK_RECORD}};
@@ -322,105 +332,18 @@ void addrule(int index, non_terminals nt, int size,gitems value[]) {
 
     gitems v89[1] = {{true, TK_UNION}};
     addrule(11,A,1,v89);
+
+    gitems v90[1] = {{false,typeDefinition }};
+    addrule(53, actualOrRedefined, 1, v90);
+
+    gitems v91[1] = {{false, definetypestmt}};
+    addrule(11, actualOrRedefined, 1, v91);
+
+    gitems v94[7] = {{false, outputParameters}, {true, TK_CALL},{true, TK_FUNID}, {true, TK_WITH}, {true, TK_PARAMETERS},{false, inputParameters}, {true, TK_SEM}};
+    addrule(30, funCallStmt, 7, v94);
 }
 
 
-void addGrammarRules()
-{
-    addrule(1, program, 2, {otherFunctions, mainFunction});
-    addrule(2, mainFunction, 3, {TK_MAIN, stmts, TK_END});
-    addrule(3, otherFunctions, 2, {function, otherFunctions});
-    addrule(3, otherFunctions, 1, {EPS});
-    addrule(4, function, 6, {TK_FUNID, input_par, output_par, TK_SEM, stmts, TK_END});
-    addrule(5, input_par, 6, {TK_INPUT, TK_PARAMETER, TK_LIST, TK_SQL, parameter_list, TK_SQR});
-    addrule(6, output_par, 6, {TK_OUTPUT, TK_PARAMETER, TK_LIST, TK_SQL, parameter_list, TK_SQR});
-    addrule(6, output_par, 1, {EPS});
-    addrule(7, parameter_list, 3, {dataType, TK_ID, remaining_list});
-    addrule(8, dataType, 1, {primitiveDatatype});
-    addrule(8, dataType, 1, {constructedDatatype});
-    addrule(9, primitiveDatatype, 1, {TK_INT});
-    addrule(9, primitiveDatatype, 1, {TK_REAL});
-    addrule(10, constructedDatatype, 2, {TK_RECORD, TK_RUID});
-    addrule(10, constructedDatatype, 2, {TK_UNION, TK_RUID});
-    addrule(10, constructedDatatype, 1, {TK_RUID});
-    addrule(11, remaining_list, 2, {TK_COMMA, parameter_list});
-    addrule(11, remaining_list, 1, {EPS});
-    addrule(12, stmts, 4, {typeDefinitions, declarations, otherStmts, returnStmt});
-    addrule(13, typeDefinitions, 2, {typeDefinition, typeDefinitions});
-    addrule(13, typeDefinitions, 1, {EPS});
-    addrule(14, typeDefinition, 4, {TK_RECORD, TK_RUID, fieldDefinitions, TK_ENDRECORD});
-    addrule(15, typeDefinition, 4, {TK_UNION, TK_RUID, fieldDefinitions, TK_ENDUNION});
-    addrule(16, fieldDefinitions, 3, {fieldDefinition, fieldDefinition, moreFields});
-    addrule(17, fieldDefinition, 5, {TK_TYPE, fieldType, TK_COLON, TK_FIELDID, TK_SEM});
-    addrule(18, fieldtype, 1, {primitiveDatatype});            // 17a
-    addrule(18, fieldtype, 1, {TK_RUID});                      // 17a
-    addrule(19, moreFields, 2, {fieldDefinition, moreFields}); // 18
-    addrule(19, moreFields, 1, {EPS});
-    addrule(20, declarations, 2, {declaration, declarations}); // 19
-    addrule(20, declarations, 1, {EPS});
-    addrule(21, declaration, 6, {TK_TYPE, dataType, TK_COLON, TK_ID, global_or_not, TK_SEM}); // 20
-    addrule(22, global_or_not, 2, {TK_COLON, TK_GLOBAL});                                     // 21
-    addrule(22, global_or_not, 1, {EPS});
-    addrule(23, otherStmts, 2, {stmt, otherStmts}); // 22
-    addrule(23, otherStmts, 1, {EPS});
-    addrule(24, stmt, 1, {assignmentStmt}); // 23
-    addrule(24, stmt, 1, {iterativeStmt});
-    addrule(24, stmt, 1, {conditionalStmt});
-    addrule(24, stmt, 1, {ioStmt});
-    addrule(24, stmt, 1, {funCallStmt});
-    addrule(25, assignmentStmt, 4, {SingleOrRecId, TK_ASSIGNOP, arithmeticExpression, TK_SEM}); // 24
-    addrule(26, singleOrRecId, 2, {TK_ID, option_single_constructed});                          // 25e
-    addrule(27, option_single_constructed, 2, {oneExpansion, moreExpansions});                  // 25F
-    addrule(27, option_single_constructed, 1, {EPS});
-    addrule(28, oneExpansion, 2, {TK_DOT, TK_FIELDID});
-    addrule(29, moreExpansions, 2, {oneExpansion, moreExpansions}); // 25d
-    addrule(29, moreExpansions, 1, {EPS});
-    addrule(30, funCallStmt, 7, {outputParameters, TK_CALL, TK_FUNID, TK_WITH, TK_PARAMETERS, inputParameters, TK_SEM}); // 26
-    addrule(31, outputParameters, 4, {TK_SQL, idList, TK_SQR, TK_ASSIGNOP});                                             // 27
-    addrule(31, outputParameters, 1, {EPS});
-    addrule(32, inputParameters, 3, {TK_SQL, idList, TK_SQR});                                                      // 28
-    addrule(33, iterativeStmt, 7, {TK_WHILE, TK_OP, booleanExpression, TK_CL, stmt, otherStmts, TK_ENDWHILE});      // 29
-    addrule(34, conditionalStmt, 8, {TK_IF, TK_OP, booleanExpression, TK_CL, TK_THEN, stmt, otherStmts, elsePart}); // 30a
-    addrule(35, elsePart, 4, {TK_ELSE, stmt, otherStmts, TK_ENDIF});                                                // 31a
-    addrule(35, elsePart, 1, {TK_ENDIF});
-    addrule(36, ioStmt, 5, {TK_READ, TK_OP, var, TK_CL, TK_SEM});       // 32
-    addrule(36, ioStmt, 5, {TK_WRITE, TK_OP, var, TK_CL, TK_SEM});      // 32
-    addrule(37, arithmeticExpression, 2, {term, expPrime});             // B1
-    addrule(38, expPrime, 3, {lowPrecedenceOperators, term, expPrime}); // B2
-    addrule(38, expPrime, 3, {EPS});
-    addrule(39, term, 2, {factor, termPrime});
-    addrule(40, termPrime, 3, {highPrecedenceOperators, factor, termPrime});
-    addrule(40, termPrime, 1, {EPS});
-    addrule(41, factor, 3, {TK_OP, arithmeticExpression, TK_CL}); // B5
-    addrule(41, factor, 1, {var});                                // B5
-    addrule(42, highPrecedenceOperators, 1, {TK_MUL});
-    addrule(42, highPrecedenceOperators, 1, {TK_DIV});
-    addrule(43, lowPrecedenceOperators, 1, {TK_PLUS});
-    addrule(43, lowPrecedenceOperators, 1, {TK_MINUS});
-    addrule(44, booleanExpression, 7, {TK_OP, booleanExpression, TK_CL, logicalOp, TK_OP, booleanExpression, TK_CL}); // 36
-    addrule(45, booleanExpression, 3, {var, relationOP, var});
-    addrule(46, booleanExpression, 4, {TK_NOT, TK_OP, booleanExpression, TK_CL}); // 38a
-    addrule(47, var, 1, {singleOrRecId});                                         // 39a
-    addrule(47, var, 1, {TK_NUM});                                                // 39a
-    addrule(47, var, 1, {TK_RNUM});                                               // 39a
-    addrule(48, logicalOp, 1, {TK_AND});                                          // 40
-    addrule(48, logicalOp, 1, {TK_OR});                                           // 40
-    addrule(49, relationalOp, 1, {TK_LT});                                        // 41
-    addrule(49, relationalOp, 1, {TK_LE});                                        // 41
-    addrule(49, relationalOp, 1, {TK_EQ});                                        // 41
-    addrule(49, relationalOp, 1, {TK_GT});                                        // 41
-    addrule(49, relationalOp, 1, {TK_GE});                                        // 41
-    addrule(49, relationalOp, 1, {TK_NE});                                        // 41
-    addrule(50, returnStmt, 3, {TK_RETURN, optionalReturn, TK_SEM});              // 42
-    addrule(51, optionalReturn, 3, {TK_SQL, idList, TK_SQR});                     // 43
-    addrule(51, optionalReturn, 1, {EPS});
-    addrule(52, idList, 2, {TK_ID, more_ids});                                   // 44
-    addrule(53, more_ids, 2, {TK_COMMA, idList});                                // 45
-    addrule(53, more_ids, 1, {EPS});                                             // 45
-    addrule(54, definetypestmt, 5, {TK_DEFINETYPE, A, TK_RUID, TK_AS, TK_RUID}); // 46
-    addrule(55, A, 1, {TK_RECORD});                                              // 47
-    addrule(55, A, 1, {TK_UNION});                                               // 47
-}
 
 void create_parse_table()
 {
@@ -444,15 +367,21 @@ void initiate_parse_table()
 {
     for (int i = 0; i < NTC; i++)
     {
-        LHSNode *current_lhs = G->rules[i]->rules;
-        while (current_lhs != NULL)
-        {
+            LHSNode *current_lhs = G->rules[i];
             ProductionRule *current_rule = current_lhs->rules;
             while (current_rule != NULL)
-            {
+            {   
                 RHSNode *rhs_node = current_rule->head;
                 if (rhs_node->isT)
                 {
+                    if(rhs_node->v.t==EPS){
+                        terminal_node *first_terminal = first_follow_sets[rhs_node->v.non_t].follow_set->head;
+                    while (first_terminal != NULL)
+                    {   
+                        PT->table[i][first_terminal->t] = current_rule;
+                        first_terminal = first_terminal->next;
+                    }
+                    }
                     PT->table[i][rhs_node->v.t] = current_rule;
                 }
                 else
@@ -465,13 +394,9 @@ void initiate_parse_table()
                     }
                 }
                 current_rule = current_rule->next_rule;
-            }
-
-            current_lhs = current_lhs->rules;
-        }
+            }   
     }
 }
-
 void print_parse_table()
 {
     printf("Parse Table:\n");
