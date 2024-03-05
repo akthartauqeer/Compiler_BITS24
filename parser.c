@@ -981,6 +981,7 @@ void printParseTree(treeNode *node, int depth)
         return;
     }
     // Print current node
+    printParseTree(node->firstChild, depth+1);
     for (int i = 0; i < depth; i++)
     {
         printf("  "); // Indent according to depth
@@ -996,6 +997,5 @@ void printParseTree(treeNode *node, int depth)
     }
 
     // Print children recursively
-    printParseTree(node->firstChild, depth + 1);
     printParseTree(node->rightSibling, depth); // Print right sibling at same depth
 }
