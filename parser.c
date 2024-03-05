@@ -938,7 +938,7 @@ bool createParseTree(SymbolItem *head)
             treeNode *newNode = (treeNode *)malloc(sizeof(treeNode));
             if (newNode = NULL)
             {
-                fprintf("Memory allocation failed for tree node.\n");
+                fprintf(stderr, "Memory allocation failed for tree node.\n");
                 exit(EXIT_FAILURE);
             }
             newNode->parent = currentParent;
